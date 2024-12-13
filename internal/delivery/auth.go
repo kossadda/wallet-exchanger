@@ -19,6 +19,7 @@ func (h *Handler) signUp(ctx *gin.Context) {
 	val, err := h.services.CreateUser(input)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	ctx.JSON(http.StatusOK, fmt.Sprintf("Created user %d", val))
@@ -35,6 +36,7 @@ func (h *Handler) signIn(ctx *gin.Context) {
 	val, err := h.services.Login(input)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	ctx.JSON(http.StatusOK, fmt.Sprintf("Succes login for %d", val))
