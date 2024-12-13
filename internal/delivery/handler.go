@@ -19,9 +19,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	//gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
-	auth := router.Group("/auth")
+	auth := router.Group("/auth/v1")
 	{
-		auth.POST("/sign-up", h.signUp)
+		auth.POST("/register", h.register)
 		auth.POST("/sign-in", h.signIn)
 	}
 

@@ -17,13 +17,13 @@ func NewAuthService(repo repository.Repository) *AuthService {
 	}
 }
 
-func (s *AuthService) CreateUser(usr model.User) (int, error) {
+func (s *AuthService) CreateUser(usr model.User) error {
 	usr.Password = generateHash(usr.Password, usr.Username)
 
 	return s.repo.CreateUser(usr)
 }
 
-func (s *AuthService) Login(usr model.User) (int, error) {
+func (s *AuthService) Login(usr model.User) error {
 	return s.repo.Login(usr)
 }
 

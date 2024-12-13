@@ -6,8 +6,8 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(usr model.User) (int, error)
-	Login(usr model.User) (int, error)
+	CreateUser(usr model.User) error
+	Login(usr model.User) error
 }
 
 type Service struct {

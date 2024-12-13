@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -17,18 +18,28 @@ func NewAuthDB(db *sqlx.DB) *AuthDB {
 	}
 }
 
-func (s *AuthDB) CreateUser(usr model.User) (int, error) {
-	var id int
-	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", model.UserTable)
+func (s *AuthDB) CreateUser(usr model.User) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
+	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3)", model.UserTable)
 	row := s.db.QueryRow(query, usr.Username, usr.Password, usr.Email)
-	if err := row.Scan(&id); err != nil {
-		return 0, err
+	if err := row.Scan(); err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
 	}
 
-	return id, nil
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (s *AuthDB) Login(usr model.User) (int, error) {
-	return 432, nil
+func (s *AuthDB) Login(usr model.User) error {
+	return nil
 }

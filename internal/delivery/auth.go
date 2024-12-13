@@ -1,14 +1,13 @@
 package delivery
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kossadda/wallet-exchanger/model"
 )
 
-func (h *Handler) signUp(ctx *gin.Context) {
+func (h *Handler) register(ctx *gin.Context) {
 	var input model.User
 
 	if err := ctx.BindJSON(&input); err != nil {
@@ -16,13 +15,13 @@ func (h *Handler) signUp(ctx *gin.Context) {
 		return
 	}
 
-	val, err := h.services.CreateUser(input)
+	err := h.services.CreateUser(input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, "Username or email already exists")
 		return
 	}
 
-	ctx.JSON(http.StatusOK, fmt.Sprintf("Created user %d", val))
+	ctx.JSON(http.StatusCreated, "User registered successfully")
 }
 
 func (h *Handler) signIn(ctx *gin.Context) {
@@ -33,11 +32,11 @@ func (h *Handler) signIn(ctx *gin.Context) {
 		return
 	}
 
-	val, err := h.services.Login(input)
+	err := h.services.Login(input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, "Invalid username or password")
 		return
 	}
 
-	ctx.JSON(http.StatusOK, fmt.Sprintf("Succes login for %d", val))
+	ctx.JSON(http.StatusOK, "JWT_TOKEN")
 }
