@@ -16,7 +16,7 @@ func NewWalletDB(db *sqlx.DB) *WalletDB {
 	}
 }
 
-func (w *WalletDB) GetBalance(userId int) (*model.BalanceCurrency, error) {
+func (w *WalletDB) GetBalance(userId int) (*model.Currency, error) {
 	var balance model.Currency
 
 	tx, err := w.db.Beginx()
@@ -35,5 +35,36 @@ func (w *WalletDB) GetBalance(userId int) (*model.BalanceCurrency, error) {
 		return nil, err
 	}
 
-	return &model.BalanceCurrency{Balance: balance}, nil
+	return &balance, nil
+}
+
+func (w *WalletDB) DepositSum(dep *model.Deposit) error {
+	tx, err := w.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var query string
+	switch dep.Currency {
+	case "USD":
+		query = fmt.Sprintf("UPDATE %s SET usd = usd + $1 WHERE id = $2", model.WalletTable)
+	case "RUB":
+		query = fmt.Sprintf("UPDATE %s SET rub = rub + $1 WHERE id = $2", model.WalletTable)
+	case "EUR":
+		query = fmt.Sprintf("UPDATE %s SET eur = eur + $1 WHERE id = $2", model.WalletTable)
+	default:
+		return fmt.Errorf("unsupported currency: %s", dep.Currency)
+	}
+
+	_, err = tx.Exec(query, dep.Amount, dep.UserId)
+	if err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }

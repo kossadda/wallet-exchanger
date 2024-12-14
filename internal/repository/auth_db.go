@@ -38,7 +38,7 @@ func (s *AuthDB) CreateUser(usr model.User) error {
 		return err
 	}
 
-	if err := tx.Commit(); err != nil {
+	if err = tx.Commit(); err != nil {
 		return err
 	}
 
