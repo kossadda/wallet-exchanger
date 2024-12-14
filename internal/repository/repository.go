@@ -7,11 +7,11 @@ import (
 
 type Authorization interface {
 	CreateUser(user model.User) error
-	GetUser(username, password string) (model.User, error)
+	GetUser(username, password string) (*model.User, error)
 }
 
 type Wallet interface {
-	GetBalance(userId int) (model.BalanceCurrency, error)
+	GetBalance(userId int) (*model.BalanceCurrency, error)
 }
 
 type Repository struct {

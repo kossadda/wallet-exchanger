@@ -12,7 +12,7 @@ type Authorization interface {
 }
 
 type Wallet interface {
-	GetBalance(userId int) (model.BalanceCurrency, error)
+	GetBalance(userId int) (*model.BalanceCurrency, error)
 }
 
 type Service struct {

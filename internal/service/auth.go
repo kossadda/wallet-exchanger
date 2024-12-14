@@ -28,7 +28,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		return "", err
 	}
 
-	return util.GenerateToken(&user)
+	return util.GenerateToken(user)
 }
 
 func (s *AuthService) ParseToken(access string) (int, error) {

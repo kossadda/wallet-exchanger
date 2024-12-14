@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/model"
 )
@@ -15,6 +16,6 @@ func NewWalletDB(db *sqlx.DB) *WalletDB {
 	}
 }
 
-func (w *WalletDB) GetBalance(userId int) (model.BalanceCurrency, error) {
-	return model.BalanceCurrency{}, nil
+func (w *WalletDB) GetBalance(userId int) (*model.BalanceCurrency, error) {
+	return nil, fmt.Errorf("not implemented")
 }

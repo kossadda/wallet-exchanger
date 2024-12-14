@@ -15,6 +15,6 @@ func NewWalletService(repo repository.Repository) *WalletService {
 	}
 }
 
-func (w *WalletService) GetBalance(userId int) (model.BalanceCurrency, error) {
+func (w *WalletService) GetBalance(userId int) (*model.BalanceCurrency, error) {
 	return w.repo.GetBalance(userId)
 }

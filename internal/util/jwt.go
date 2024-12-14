@@ -4,9 +4,10 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/kossadda/wallet-exchanger/model"
-	"time"
 )
 
 const (
@@ -16,13 +17,6 @@ const (
 type TokenClaims struct {
 	jwt.StandardClaims
 	UserId int `json:"user_id"`
-}
-
-func GenerateHash(password string, salt string) string {
-	hash := sha1.New()
-	hash.Write([]byte(password))
-
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
 
 func GenerateToken(user *model.User) (string, error) {
@@ -55,4 +49,11 @@ func ParseToken(access string) (int, error) {
 	}
 
 	return claims.UserId, nil
+}
+
+func GenerateHash(password string, salt string) string {
+	hash := sha1.New()
+	hash.Write([]byte(password))
+
+	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
