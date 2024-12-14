@@ -25,12 +25,17 @@ func (s *AuthDB) CreateUser(usr model.User) error {
 	}
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3)", model.UserTable)
-	row := s.db.QueryRow(query, usr.Username, usr.Password, usr.Email)
-	if err := row.Scan(); err != nil {
-		if err != sql.ErrNoRows {
-			return err
-		}
+	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", model.UserTable)
+	var userID int
+	err = tx.QueryRow(query, usr.Username, usr.Password, usr.Email).Scan(&userID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	query = fmt.Sprintf("INSERT INTO %s (user_id) VALUES ($1)", model.WalletTable)
+	_, err = tx.Exec(query, userID)
+	if err != nil {
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {
