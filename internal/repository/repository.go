@@ -10,12 +10,18 @@ type Authorization interface {
 	GetUser(username, password string) (model.User, error)
 }
 
+type Wallet interface {
+	GetBalance(userId int) (model.BalanceCurrency, error)
+}
+
 type Repository struct {
 	Authorization
+	Wallet
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthDB(db),
+		Wallet:        NewWalletDB(db),
 	}
 }

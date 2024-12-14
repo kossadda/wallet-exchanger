@@ -28,13 +28,13 @@ func (h *Handler) Login(ctx *gin.Context) {
 	var input model.LogUser
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	token, err := h.services.GenerateToken(input.Username, input.Password)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, "Invalid username or password")
+		newErrorResponse(ctx, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
 

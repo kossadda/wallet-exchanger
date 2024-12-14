@@ -2,11 +2,16 @@ package service
 
 import (
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/kossadda/wallet-exchanger/internal/repository"
 	"github.com/kossadda/wallet-exchanger/model"
 	"time"
+)
+
+const (
+	signInKey = "s57ig348n6348Inke346y"
 )
 
 type AuthService struct {
@@ -44,7 +49,27 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		UserId: user.Id,
 	})
 
-	return token.SignedString([]byte(user.Password))
+	return token.SignedString([]byte(signInKey))
+}
+
+func (s *AuthService) ParseToken(access string) (int, error) {
+	token, err := jwt.ParseWithClaims(access, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+
+		return []byte(signInKey), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	claims, ok := token.Claims.(*tokenClaims)
+	if !ok || !token.Valid {
+		return 0, errors.New("invalid token")
+	}
+
+	return claims.UserId, nil
 }
 
 func generateHash(password string, salt string) string {
