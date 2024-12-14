@@ -40,6 +40,16 @@ func (s *AuthDB) CreateUser(usr model.User) error {
 	return nil
 }
 
-func (s *AuthDB) Login(usr model.User) error {
-	return nil
+func (s *AuthDB) GetUser(username, password string) (model.User, error) {
+	var user model.User
+	tx, err := s.db.Begin()
+	if err != nil {
+		return model.User{}, err
+	}
+	defer tx.Rollback()
+
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", model.UserTable)
+	err = s.db.Get(&user, query, username, password)
+
+	return user, err
 }

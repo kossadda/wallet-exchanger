@@ -7,7 +7,7 @@ import (
 
 type Authorization interface {
 	CreateUser(usr model.User) error
-	Login(usr model.User) error
+	GenerateToken(username, password string) (string, error)
 }
 
 type Service struct {
