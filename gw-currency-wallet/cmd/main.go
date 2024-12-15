@@ -7,7 +7,6 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/configs"
 	"github.com/kossadda/wallet-exchanger/share/database"
 	"github.com/kossadda/wallet-exchanger/share/server"
-	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
