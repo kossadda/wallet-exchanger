@@ -28,7 +28,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api := router.Group("/api/v1", h.userIdentity)
 	{
 		api.GET("/balance", h.getBalance)
-		api.POST("/wallet/deposit", h.depositSum)
+		api.POST("/wallet/deposit", h.deposit)
+		api.POST("/wallet/withdraw", h.withdraw)
 	}
 
 	return router

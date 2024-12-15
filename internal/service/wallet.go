@@ -19,6 +19,10 @@ func (w *WalletService) GetBalance(userId int) (*model.Currency, error) {
 	return w.repo.GetBalance(userId)
 }
 
-func (w *WalletService) DepositSum(dep *model.Deposit) error {
-	return w.repo.DepositSum(dep)
+func (w *WalletService) Deposit(dep *model.Operation) error {
+	return w.repo.Deposit(dep)
+}
+
+func (w *WalletService) Withdraw(dep *model.Operation) error {
+	return w.repo.Withdraw(dep)
 }

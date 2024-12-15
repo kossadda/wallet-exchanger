@@ -6,7 +6,7 @@ type Currency struct {
 	EUR float64 `db:"eur" json:"EUR"`
 }
 
-type Deposit struct {
+type Operation struct {
 	UserId   int
 	Amount   float64 `json:"amount" binding:"required"`
 	Currency string  `json:"currency" binding:"required"`

@@ -21,9 +21,9 @@ func (h *Handler) getBalance(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) depositSum(ctx *gin.Context) {
+func (h *Handler) deposit(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
-	input := &model.Deposit{
+	input := &model.Operation{
 		UserId: userId.(int),
 	}
 
@@ -32,7 +32,7 @@ func (h *Handler) depositSum(ctx *gin.Context) {
 		return
 	}
 
-	err := h.services.DepositSum(input)
+	err := h.services.Deposit(input)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
@@ -46,6 +46,35 @@ func (h *Handler) depositSum(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message":     "Account topped up successfully",
+		"new_balance": balance,
+	})
+}
+
+func (h *Handler) withdraw(ctx *gin.Context) {
+	userId, _ := ctx.Get("userId")
+	input := &model.Operation{
+		UserId: userId.(int),
+	}
+
+	if err := ctx.BindJSON(input); err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err := h.services.Withdraw(input)
+	if err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	balance, err := h.services.GetBalance(userId.(int))
+	if err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message":     "Withdrawal successful",
 		"new_balance": balance,
 	})
 }

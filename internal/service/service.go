@@ -13,7 +13,8 @@ type Authorization interface {
 
 type Wallet interface {
 	GetBalance(userId int) (*model.Currency, error)
-	DepositSum(dep *model.Deposit) error
+	Deposit(dep *model.Operation) error
+	Withdraw(with *model.Operation) error
 }
 
 type Service struct {
