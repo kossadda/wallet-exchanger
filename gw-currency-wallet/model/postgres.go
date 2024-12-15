@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/configs"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -11,16 +12,7 @@ const (
 	WalletTable = "wallets"
 )
 
-type Config struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
-}
-
-func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
+func NewPostgresDB(cfg *configs.Config) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.Host, cfg.Port, cfg.User, cfg.DBName, cfg.Password, cfg.SSLMode))
 

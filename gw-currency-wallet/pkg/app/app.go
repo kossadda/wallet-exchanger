@@ -1,9 +1,9 @@
 package app
 
 import (
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/configs"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/repository"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
@@ -13,17 +13,7 @@ import (
 )
 
 func Run() error {
-	err := godotenv.Load("configs/config.env")
-	cfg := model.Config{
-		Host:     os.Getenv("DB_HOST"),
-		Port:     os.Getenv("DB_PORT"),
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   os.Getenv("DB_NAME"),
-		SSLMode:  os.Getenv("DB_SSLMODE"),
-	}
-
-	db, err := model.NewPostgresDB(cfg)
+	db, err := model.NewPostgresDB(configs.NewDefaultConfig())
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
