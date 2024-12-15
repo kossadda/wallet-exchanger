@@ -1,4 +1,4 @@
-package repository
+package storage
 
 import (
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"

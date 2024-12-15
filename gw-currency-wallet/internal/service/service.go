@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/repository"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
@@ -22,7 +22,7 @@ type Service struct {
 	Wallet
 }
 
-func NewService(repos *repository.Repository) *Service {
+func NewService(repos *storage.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(*repos),
 		Wallet:        NewWalletService(*repos),
