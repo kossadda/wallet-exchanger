@@ -1,13 +1,11 @@
 package database
 
 import (
-	"context"
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/share/configs"
 	"github.com/kossadda/wallet-exchanger/share/database/postgres"
-	_ "github.com/lib/pq"
 )
 
 const (
@@ -16,10 +14,10 @@ const (
 )
 
 type DataBase interface {
-	Exec(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	Query(ctx context.Context, query string, args ...interface{}) (*sqlx.Rows, error)
-	QueryRow(ctx context.Context, query string, args ...interface{}) *sqlx.Row
-	Transaction(ctx context.Context, fn func(tx *sqlx.Tx) error) error
+	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(query string, args ...interface{}) (*sqlx.Rows, error)
+	QueryRow(query string, args ...interface{}) *sqlx.Row
+	Transaction(fn func(tx *sqlx.Tx) error) error
 	Close() error
 }
 

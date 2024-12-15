@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 
@@ -28,20 +27,20 @@ func New(cfg *configs.Config) (*PostgresDB, error) {
 	return &PostgresDB{db: db}, nil
 }
 
-func (p *PostgresDB) Exec(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
-	return p.db.ExecContext(ctx, query, args...)
+func (p *PostgresDB) Exec(query string, args ...interface{}) (sql.Result, error) {
+	return p.db.Exec(query, args...)
 }
 
-func (p *PostgresDB) Query(ctx context.Context, query string, args ...interface{}) (*sqlx.Rows, error) {
-	return p.db.QueryxContext(ctx, query, args...)
+func (p *PostgresDB) Query(query string, args ...interface{}) (*sqlx.Rows, error) {
+	return p.db.Queryx(query, args...)
 }
 
-func (p *PostgresDB) QueryRow(ctx context.Context, query string, args ...interface{}) *sqlx.Row {
-	return p.db.QueryRowxContext(ctx, query, args...)
+func (p *PostgresDB) QueryRow(query string, args ...interface{}) *sqlx.Row {
+	return p.db.QueryRowx(query, args...)
 }
 
-func (p *PostgresDB) Transaction(ctx context.Context, fn func(tx *sqlx.Tx) error) error {
-	tx, err := p.db.BeginTxx(ctx, nil)
+func (p *PostgresDB) Transaction(fn func(tx *sqlx.Tx) error) error {
+	tx, err := p.db.Beginx()
 	if err != nil {
 		return err
 	}
