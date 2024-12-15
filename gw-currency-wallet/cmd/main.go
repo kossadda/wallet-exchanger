@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	app.Run()
+	err := app.Run()
+	_ = err
 }
