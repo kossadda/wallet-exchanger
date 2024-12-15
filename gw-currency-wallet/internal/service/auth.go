@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/kossadda/wallet-exchanger/internal/repository"
-	"github.com/kossadda/wallet-exchanger/internal/util"
-	"github.com/kossadda/wallet-exchanger/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/repository"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/util"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
 type AuthService struct {

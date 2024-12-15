@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kossadda/wallet-exchanger/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
 const (

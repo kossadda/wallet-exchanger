@@ -4,10 +4,10 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/kossadda/wallet-exchanger/internal/delivery"
-	"github.com/kossadda/wallet-exchanger/internal/repository"
-	"github.com/kossadda/wallet-exchanger/internal/service"
-	"github.com/kossadda/wallet-exchanger/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/repository"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )

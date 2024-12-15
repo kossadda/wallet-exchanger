@@ -2,7 +2,7 @@ package delivery
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kossadda/wallet-exchanger/internal/service"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
 )
 
 type Handler struct {
