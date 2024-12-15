@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/kossadda/wallet-exchanger/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
 type Authorization interface {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kossadda/wallet-exchanger/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
 func (h *Handler) register(ctx *gin.Context) {
