@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+	"github.com/kossadda/wallet-exchanger/share/postgres"
 )
 
 type WalletDB struct {
@@ -26,7 +27,7 @@ func (w *WalletDB) GetBalance(userId int) (*model.Currency, error) {
 	}
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT usd, rub, eur FROM %s WHERE id=$1", model.WalletTable)
+	query := fmt.Sprintf("SELECT usd, rub, eur FROM %s WHERE id=$1", postgres.WalletTable)
 	err = tx.Get(&balance, query, userId)
 	if err != nil {
 		return nil, err
@@ -49,11 +50,11 @@ func (w *WalletDB) Deposit(dep *model.Operation) error {
 	var query string
 	switch dep.Currency {
 	case "USD":
-		query = fmt.Sprintf("UPDATE %s SET usd = usd + $1 WHERE id = $2", model.WalletTable)
+		query = fmt.Sprintf("UPDATE %s SET usd = usd + $1 WHERE id = $2", postgres.WalletTable)
 	case "RUB":
-		query = fmt.Sprintf("UPDATE %s SET rub = rub + $1 WHERE id = $2", model.WalletTable)
+		query = fmt.Sprintf("UPDATE %s SET rub = rub + $1 WHERE id = $2", postgres.WalletTable)
 	case "EUR":
-		query = fmt.Sprintf("UPDATE %s SET eur = eur + $1 WHERE id = $2", model.WalletTable)
+		query = fmt.Sprintf("UPDATE %s SET eur = eur + $1 WHERE id = $2", postgres.WalletTable)
 	default:
 		return fmt.Errorf("unsupported currency: %s", dep.Currency)
 	}
@@ -82,14 +83,14 @@ func (w *WalletDB) Withdraw(with *model.Operation) error {
 
 	switch with.Currency {
 	case "USD":
-		selectQuery = fmt.Sprintf("SELECT usd FROM %s WHERE id = $1", model.WalletTable)
-		updateQuery = fmt.Sprintf("UPDATE %s SET usd = usd - $1 WHERE id = $2", model.WalletTable)
+		selectQuery = fmt.Sprintf("SELECT usd FROM %s WHERE id = $1", postgres.WalletTable)
+		updateQuery = fmt.Sprintf("UPDATE %s SET usd = usd - $1 WHERE id = $2", postgres.WalletTable)
 	case "RUB":
-		selectQuery = fmt.Sprintf("SELECT rub FROM %s WHERE id = $1", model.WalletTable)
-		updateQuery = fmt.Sprintf("UPDATE %s SET rub = rub - $1 WHERE id = $2", model.WalletTable)
+		selectQuery = fmt.Sprintf("SELECT rub FROM %s WHERE id = $1", postgres.WalletTable)
+		updateQuery = fmt.Sprintf("UPDATE %s SET rub = rub - $1 WHERE id = $2", postgres.WalletTable)
 	case "EUR":
-		selectQuery = fmt.Sprintf("SELECT eur FROM %s WHERE id = $1", model.WalletTable)
-		updateQuery = fmt.Sprintf("UPDATE %s SET eur = eur - $1 WHERE id = $2", model.WalletTable)
+		selectQuery = fmt.Sprintf("SELECT eur FROM %s WHERE id = $1", postgres.WalletTable)
+		updateQuery = fmt.Sprintf("UPDATE %s SET eur = eur - $1 WHERE id = $2", postgres.WalletTable)
 	default:
 		return fmt.Errorf("unsupported currency: %s", with.Currency)
 	}

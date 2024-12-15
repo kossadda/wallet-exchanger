@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+	"github.com/kossadda/wallet-exchanger/share/postgres"
 )
 
 type AuthDB struct {
@@ -25,14 +26,14 @@ func (s *AuthDB) CreateUser(usr model.User) error {
 	}
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", model.UserTable)
+	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", postgres.UserTable)
 	var userID int
 	err = tx.QueryRow(query, usr.Username, usr.Password, usr.Email).Scan(&userID)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
-	query = fmt.Sprintf("INSERT INTO %s (user_id) VALUES ($1)", model.WalletTable)
+	query = fmt.Sprintf("INSERT INTO %s (user_id) VALUES ($1)", postgres.WalletTable)
 	_, err = tx.Exec(query, userID)
 	if err != nil {
 		return err
@@ -53,7 +54,7 @@ func (s *AuthDB) GetUser(username, password string) (*model.User, error) {
 	}
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", model.UserTable)
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", postgres.UserTable)
 	err = s.db.Get(&user, query, username, password)
 
 	if err := tx.Commit(); err != nil {
