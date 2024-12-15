@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+	"github.com/kossadda/wallet-exchanger/share/database"
 )
 
 type Authorization interface {
@@ -21,7 +21,7 @@ type Repository struct {
 	Wallet
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db database.DataBase) *Repository {
 	return &Repository{
 		Authorization: NewAuthDB(db),
 		Wallet:        NewWalletDB(db),

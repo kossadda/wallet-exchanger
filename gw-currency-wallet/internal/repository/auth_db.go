@@ -1,65 +1,49 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
-	"github.com/kossadda/wallet-exchanger/share/postgres"
+	"github.com/kossadda/wallet-exchanger/share/database"
 )
 
 type AuthDB struct {
-	db *sqlx.DB
+	db database.DataBase
 }
 
-func NewAuthDB(db *sqlx.DB) *AuthDB {
+func NewAuthDB(db database.DataBase) *AuthDB {
 	return &AuthDB{
 		db: db,
 	}
 }
 
 func (s *AuthDB) CreateUser(usr model.User) error {
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+	return s.db.Transaction(func(tx *sqlx.Tx) error {
+		query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", database.UserTable)
+		var userID int
+		if err := tx.QueryRow(query, usr.Username, usr.Password, usr.Email).Scan(&userID); err != nil {
+			return err
+		}
 
-	query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", postgres.UserTable)
-	var userID int
-	err = tx.QueryRow(query, usr.Username, usr.Password, usr.Email).Scan(&userID)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
+		query = fmt.Sprintf("INSERT INTO %s (user_id) VALUES ($1)", database.WalletTable)
+		if _, err := tx.Exec(query, userID); err != nil {
+			return err
+		}
 
-	query = fmt.Sprintf("INSERT INTO %s (user_id) VALUES ($1)", postgres.WalletTable)
-	_, err = tx.Exec(query, userID)
-	if err != nil {
-		return err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
+		return nil
+	})
 }
 
 func (s *AuthDB) GetUser(username, password string) (*model.User, error) {
 	var user model.User
-	tx, err := s.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", postgres.UserTable)
-	err = s.db.Get(&user, query, username, password)
-
-	if err := tx.Commit(); err != nil {
+	if err := s.db.Transaction(func(tx *sqlx.Tx) error {
+		query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", database.UserTable)
+		return tx.Get(&user, query, username, password)
+	}); err != nil {
 		return nil, err
 	}
 
-	return &user, err
+	return &user, nil
 }
