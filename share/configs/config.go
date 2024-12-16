@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -16,10 +17,24 @@ type Config struct {
 	ServerPort string
 }
 
-func NewEnvConfig() (*Config, error) {
-	err := godotenv.Load("config.env")
+func New(dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode, serverPort string) *Config {
+	return &Config{
+		DBHost:     dbHost,
+		DBPort:     dbPort,
+		DBUser:     dbUser,
+		DBPassword: dbPassword,
+		DBName:     dbName,
+		DBSSLMode:  dbSSLMode,
+		ServerPort: serverPort,
+	}
+}
+
+func NewEnvConfig(configPath string) *Config {
+	err := godotenv.Load(configPath)
 	if err != nil {
-		return nil, err
+		dflt := NewDefaultConfig()
+		logrus.Error(err, "Use default config", dflt)
+		return dflt
 	}
 
 	return &Config{
@@ -30,5 +45,5 @@ func NewEnvConfig() (*Config, error) {
 		DBName:     os.Getenv("DB_NAME"),
 		DBSSLMode:  os.Getenv("DB_SSLMODE"),
 		ServerPort: os.Getenv("SERVER_PORT"),
-	}, nil
+	}
 }
