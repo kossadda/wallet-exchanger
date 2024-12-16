@@ -1,4 +1,4 @@
-package currecywallet
+package app
 
 import (
 	"context"

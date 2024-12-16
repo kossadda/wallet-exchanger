@@ -44,8 +44,8 @@ github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa02
 github.com/klauspost/cpuid/v2 v2.2.7 h1:ZWSB3igEs+d0qvnxR/ZBzXVmxkgt8DdzP6m9pfuVLDM=
 github.com/klauspost/cpuid/v2 v2.2.7/go.mod h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZYpaMropDUws=
 github.com/knz/go-libedit v1.10.1/go.mod h1:MZTVkCWyz0oBc7JOWP3wNAzd002ZbM/5hgShxwh4x8M=
-github.com/kossadda/wallet-exchanger/share v0.0.0-20241215143415-a32a3bb0c994 h1:X35aWs29mUk7YAue7DNBlWZ1s8/9CtkdoYchoJwOarA=
-github.com/kossadda/wallet-exchanger/share v0.0.0-20241215143415-a32a3bb0c994/go.mod h1:RueOEkgSzGV+nMFEbQLrSYozw2GtsJ33oUI0ZNCHjHA=
+github.com/kossadda/wallet-exchanger/share v0.0.0-20241216084310-439ac79715ef h1:oWJ1Xkk02AHXIrUXgeDPKHuJlyjsDiNPYtfbjoAU3gg=
+github.com/kossadda/wallet-exchanger/share v0.0.0-20241216084310-439ac79715ef/go.mod h1:cc4SwTpQ6OmXGDCFp4jKwpeiZSteOMuWRV79u1rnwKY=
 github.com/leodido/go-urn v1.4.0 h1:WT9HwE9SGECu3lg4d/dIA+jxlljEa1/ffXKmRjqdmIQ=
 github.com/leodido/go-urn v1.4.0/go.mod h1:bvxc+MVxLKB4z00jd1z+Dvzr47oO32F/QSNjSBOlFxI=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=

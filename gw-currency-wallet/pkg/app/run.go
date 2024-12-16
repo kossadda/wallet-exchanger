@@ -5,12 +5,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/lib/pq"
+	cw "github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/app"
+	"github.com/kossadda/wallet-exchanger/share/configs"
 )
 
 type App interface {
 	Start() error
 	Stop()
+}
+
+func NewCurrecyWallet(cfg *configs.Config) App {
+	return cw.New(cfg) 
 }
 
 func Run(a App) error {
