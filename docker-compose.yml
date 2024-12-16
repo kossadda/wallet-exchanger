@@ -10,4 +10,4 @@ services:
     ports:
       - "5436:5432"
     volumes:
-      - ./gw-currency-wallet/initdb:/docker-entrypoint-initdb.d
+      - ./db/migrations:/docker-entrypoint-initdb.d

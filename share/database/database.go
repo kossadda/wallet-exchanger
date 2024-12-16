@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	UserTable   = "users"
-	WalletTable = "wallets"
+	UserTable     = "users"
+	WalletTable   = "wallets"
+	CurrencyTable = "currency"
 )
 
 type DataBase interface {
