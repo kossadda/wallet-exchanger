@@ -9,11 +9,11 @@ service Exchanger {
 }
 
 message ExchangeRequest {
-  int64 sum = 1;
+  double sum = 1;
   string inputCurrency = 2;
   string outputCurrency = 3;
 }
 
 message ExchangeResponse {
-  int64 sum = 1;
+  double sum = 1;
 }

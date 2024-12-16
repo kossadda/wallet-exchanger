@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/app"
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/config"
 )
 
@@ -24,9 +25,9 @@ func main() {
 		slog.Int("port", cfg.GRPC.Port),
 	)
 
-	log.Debug("debug msg")
-	log.Error("error msg")
-	log.Warn("warning msg")
+	application := app.Newsd(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	application.GRPCSrv.MustRun()
 }
 
 func setupLogger(env string) *slog.Logger {
