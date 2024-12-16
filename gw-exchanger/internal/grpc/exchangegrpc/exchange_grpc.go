@@ -2,41 +2,37 @@ package exchangegrpc
 
 import (
 	"context"
+
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
 	"google.golang.org/grpc"
-)
-
-const (
-	usdRateRub = 103.85
-	usdRateEur = 0.95
-	rubRateUsd = 0.0096
-	rubRateEur = 0.0092
-	eurRateRub = 1.05
-	eurRateUsd = 109.08
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type serverAPI struct {
 	gen.UnimplementedExchangerServer
+	service *service.Service
 }
 
-func Register(gRPC *grpc.Server) {
-	gen.RegisterExchangerServer(gRPC, &serverAPI{})
+func Register(gRPC *grpc.Server, service *service.Service) {
+	gen.RegisterExchangerServer(gRPC, &serverAPI{
+		service: service,
+	})
 }
 
 func (s *serverAPI) Exchange(ctx context.Context, req *gen.ExchangeRequest) (*gen.ExchangeResponse, error) {
-	//newSum := req.Sum
-	//switch req.InputCurrency {
-	//case "USD":
-	//	switch req.OutputCurrency {
-	//	case "RUB":
-	//		newSum *= usdRateRub
-	//	case "EUR":
-	//
-	//	}
-	//case "EUR":
-	//case "RUB":
-	//}
-	return &gen.ExchangeResponse{
-		Sum: 1234,
-	}, nil
+	if req.Sum <= 0.0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid converting sum")
+	}
+
+	supCurrency := map[string]struct{}{"USD": {}, "RUB": {}, "EUR": {}}
+	if _, ok := supCurrency[req.InputCurrency]; !ok {
+		return nil, status.Error(codes.InvalidArgument, "invalid input currency")
+	}
+	if _, ok := supCurrency[req.OutputCurrency]; !ok {
+		return nil, status.Error(codes.InvalidArgument, "invalid output currency")
+	}
+
+	return s.service.Exchange(ctx, req)
 }

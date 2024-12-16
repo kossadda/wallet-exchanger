@@ -4,13 +4,16 @@ go 1.23.3
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/kossadda/wallet-exchanger/share v0.0.0-20241216125734-de78e5693a80
+	github.com/kossadda/wallet-exchanger/share v0.0.0-20241216141555-bddfc1d143c6
 	google.golang.org/grpc v1.69.0
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/lib/pq v1.10.9 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect

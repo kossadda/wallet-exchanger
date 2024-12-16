@@ -3,6 +3,8 @@ package main
 import (
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/app"
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/config"
@@ -25,9 +27,16 @@ func main() {
 		slog.Int("port", cfg.GRPC.Port),
 	)
 
-	application := app.Newsd(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
 
-	application.GRPCSrv.MustRun()
+	go application.GRPCSrv.MustRun()
+
+	quitCh := make(chan os.Signal, 1)
+	signal.Notify(quitCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	sign := <-quitCh
+
+	application.GRPCSrv.Stop()
+	log.Info("application stopped", slog.String("signal", sign.String()))
 }
 
 func setupLogger(env string) *slog.Logger {

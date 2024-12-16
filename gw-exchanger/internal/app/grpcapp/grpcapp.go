@@ -2,10 +2,15 @@ package grpcapp
 
 import (
 	"fmt"
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/grpc/exchangegrpc"
-	"google.golang.org/grpc"
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage"
 	"log/slog"
 	"net"
+
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/grpc/exchangegrpc"
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
+	"github.com/kossadda/wallet-exchanger/share/configs"
+	"github.com/kossadda/wallet-exchanger/share/database"
+	"google.golang.org/grpc"
 )
 
 type GRPCApp struct {
@@ -16,7 +21,16 @@ type GRPCApp struct {
 
 func New(log *slog.Logger, port int) *GRPCApp {
 	gRPCServer := grpc.NewServer()
-	exchangegrpc.Register(gRPCServer)
+
+	cfg := configs.NewDefaultConfig()
+	db, err := database.NewPostgres(cfg)
+	if err != nil {
+		panic(err)
+	}
+	strg := storage.New(db)
+	srvc := service.New(strg)
+
+	exchangegrpc.Register(gRPCServer, srvc)
 
 	return &GRPCApp{
 		log:        log,
@@ -52,7 +66,7 @@ func (a *GRPCApp) Run() error {
 func (a *GRPCApp) Stop() {
 	const op = "grpcapp.Stop"
 
-	a.log.With(slog.String("op", op)).Info("stopping gRPC server", slog.Int("port", a.port))
+	a.log.With(slog.String("op", op)).Info("stopping gRPC server")
 
 	a.gRPCServer.GracefulStop()
 }
