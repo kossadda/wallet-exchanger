@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/kossadda/wallet-exchanger/share v0.0.0-20241216141555-bddfc1d143c6
+	github.com/kossadda/wallet-exchanger/share v0.0.0-20241216172103-868734f50f36
 	google.golang.org/grpc v1.69.0
 )
 
