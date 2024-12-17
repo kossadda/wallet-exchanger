@@ -1,4 +1,4 @@
-package delivery
+package util
 
 import (
 	"log/slog"
@@ -10,7 +10,7 @@ type response struct {
 	Message string `json:"message"`
 }
 
-func newErrorResponse(ctx *gin.Context, logger *slog.Logger, statusCode int, message string) {
+func NewErrorResponse(ctx *gin.Context, logger *slog.Logger, statusCode int, message string) {
 	logger.Error(message)
 	ctx.AbortWithStatusJSON(statusCode, response{Message: message})
 }
