@@ -7,7 +7,8 @@ import (
 	"syscall"
 
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/app"
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/config"
+	"github.com/kossadda/wallet-exchanger/share/configs"
+	"github.com/kossadda/wallet-exchanger/share/logger"
 )
 
 const (
@@ -17,17 +18,18 @@ const (
 )
 
 func main() {
-	cfg := config.MustLoad()
+	servCfg := configs.NewServerEnvConfig("config/local.env")
+	dbCfg := configs.NewEnvConfigDB("config/database.env")
 
-	log := setupLogger(cfg.Env)
+	log := logger.Setup(servCfg.Env)
 
 	log.Info("start application",
-		slog.String("env", cfg.Env),
-		slog.Any("cfg", cfg),
-		slog.Int("port", cfg.GRPC.Port),
+		slog.String("env", servCfg.Env),
+		slog.Any("cfg", servCfg),
+		slog.String("port", servCfg.Port),
 	)
 
-	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application := app.New(log, dbCfg, servCfg)
 
 	go application.GRPCSrv.MustRun()
 
@@ -37,25 +39,4 @@ func main() {
 
 	application.GRPCSrv.Stop()
 	log.Info("application stopped", slog.String("signal", sign.String()))
-}
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-	}
-
-	return log
 }

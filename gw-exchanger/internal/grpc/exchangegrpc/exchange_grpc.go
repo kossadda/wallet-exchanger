@@ -22,17 +22,25 @@ func Register(gRPC *grpc.Server, service *service.Service) {
 }
 
 func (s *serverAPI) Exchange(ctx context.Context, req *gen.ExchangeRequest) (*gen.ExchangeResponse, error) {
+	if err := validateExchangeRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return s.service.Exchange(ctx, req)
+}
+
+func validateExchangeRequest(req *gen.ExchangeRequest) error {
 	if req.Sum <= 0.0 {
-		return nil, status.Error(codes.InvalidArgument, "invalid converting sum")
+		return status.Error(codes.InvalidArgument, "invalid converting sum")
 	}
 
 	supCurrency := map[string]struct{}{"USD": {}, "RUB": {}, "EUR": {}}
 	if _, ok := supCurrency[req.InputCurrency]; !ok {
-		return nil, status.Error(codes.InvalidArgument, "invalid input currency")
+		return status.Error(codes.InvalidArgument, "invalid input currency")
 	}
 	if _, ok := supCurrency[req.OutputCurrency]; !ok {
-		return nil, status.Error(codes.InvalidArgument, "invalid output currency")
+		return status.Error(codes.InvalidArgument, "invalid output currency")
 	}
 
-	return s.service.Exchange(ctx, req)
+	return nil
 }

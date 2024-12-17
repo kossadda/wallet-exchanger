@@ -2,12 +2,13 @@ package grpcapp
 
 import (
 	"fmt"
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage"
 	"log/slog"
 	"net"
+	"strconv"
 
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/grpc/exchangegrpc"
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage"
 	"github.com/kossadda/wallet-exchanger/share/configs"
 	"github.com/kossadda/wallet-exchanger/share/database"
 	"google.golang.org/grpc"
@@ -16,26 +17,24 @@ import (
 type GRPCApp struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
-	port       int
+	port       string
 }
 
-func New(log *slog.Logger, port int) *GRPCApp {
+func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerConfig) *GRPCApp {
 	gRPCServer := grpc.NewServer()
 
-	cfg := configs.NewDefaultConfig()
-	db, err := database.NewPostgres(cfg)
+	db, err := database.NewPostgres(dbConf)
 	if err != nil {
 		panic(err)
 	}
-	strg := storage.New(db)
-	srvc := service.New(strg)
+	services := service.New(storage.New(db))
 
-	exchangegrpc.Register(gRPCServer, srvc)
+	exchangegrpc.Register(gRPCServer, services)
 
 	return &GRPCApp{
 		log:        log,
 		gRPCServer: gRPCServer,
-		port:       port,
+		port:       servConf.Port,
 	}
 }
 
@@ -48,9 +47,13 @@ func (a *GRPCApp) MustRun() {
 func (a *GRPCApp) Run() error {
 	const op = "grpcapp.Run"
 
-	log := a.log.With(slog.String("op", op), slog.Int("port", a.port))
+	_, err := strconv.Atoi(a.port)
+	if err != nil {
+		a.port = configs.DefaultGrpcPort
+	}
+	log := a.log.With(slog.String("op", op), slog.String("port", a.port))
 
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
+	l, err := net.Listen("tcp", ":"+a.port)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

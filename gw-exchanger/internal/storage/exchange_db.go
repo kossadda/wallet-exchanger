@@ -34,7 +34,7 @@ func (e *ExchangeDB) Exchange(ctx context.Context, request *gen.ExchangeRequest)
 		res.Sum = request.Sum * coefficient
 		return nil
 	}); err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
 	return &res, nil
