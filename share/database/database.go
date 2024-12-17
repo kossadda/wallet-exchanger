@@ -17,6 +17,6 @@ type DataBase interface {
 	Close() error
 }
 
-func NewPostgres(cfg *configs.Config) (DataBase, error) {
+func NewPostgres(cfg *configs.ConfigDB) (DataBase, error) {
 	return postgres.New(cfg)
 }
