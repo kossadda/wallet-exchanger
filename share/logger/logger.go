@@ -11,7 +11,7 @@ const (
 	envProd  = "prod"
 )
 
-func setupLogger(env string) *slog.Logger {
+func Setup(env string) *slog.Logger {
 	var log *slog.Logger
 
 	switch env {
