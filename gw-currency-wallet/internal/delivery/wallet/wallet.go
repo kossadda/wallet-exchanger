@@ -11,21 +11,21 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
-type Handler struct {
+type handler struct {
 	services *service.Service
 	logger   *slog.Logger
 	config   *configs.ServerConfig
 }
 
-func newHandler(services *service.Service, logger *slog.Logger, config *configs.ServerConfig) *Handler {
-	return &Handler{
+func newHandler(services *service.Service, logger *slog.Logger, config *configs.ServerConfig) *handler {
+	return &handler{
 		services: services,
 		logger:   logger,
 		config:   config,
 	}
 }
 
-func (h *Handler) GetBalance(ctx *gin.Context) {
+func (h *handler) GetBalance(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
 
 	balance, err := h.services.GetBalance(userId.(int))
@@ -39,7 +39,7 @@ func (h *Handler) GetBalance(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) Deposit(ctx *gin.Context) {
+func (h *handler) Deposit(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
 	input := &model.Operation{
 		UserId: userId.(int),
@@ -68,7 +68,7 @@ func (h *Handler) Deposit(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) Withdraw(ctx *gin.Context) {
+func (h *handler) Withdraw(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
 	input := &model.Operation{
 		UserId: userId.(int),

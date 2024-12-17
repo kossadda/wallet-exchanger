@@ -18,7 +18,7 @@ type Wallet struct {
 	MainOperations
 }
 
-func NewWallet(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Wallet {
+func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Wallet {
 	return &Wallet{
 		MainOperations: newHandler(services, logger, cfg),
 	}

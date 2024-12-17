@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"time"
@@ -6,29 +6,26 @@ import (
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/util"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
-const (
-	defaultTokenTTL = time.Hour * 24
-)
-
-type AuthService struct {
-	repo storage.Repository
+type service struct {
+	repo *storage.Storage
 }
 
-func NewAuthService(repo storage.Repository) *AuthService {
-	return &AuthService{
+func newService(repo *storage.Storage) *service {
+	return &service{
 		repo: repo,
 	}
 }
 
-func (s *AuthService) CreateUser(usr model.User) error {
+func (s *service) CreateUser(usr model.User) error {
 	usr.Password = util.GenerateHash(usr.Password, usr.Username)
 
 	return s.repo.CreateUser(usr)
 }
 
-func (s *AuthService) GenerateToken(username, password, tokenTTL string) (string, error) {
+func (s *service) GenerateToken(username, password, tokenTTL string) (string, error) {
 	user, err := s.repo.GetUser(username, util.GenerateHash(password, username))
 	if err != nil {
 		return "", err
@@ -36,12 +33,12 @@ func (s *AuthService) GenerateToken(username, password, tokenTTL string) (string
 
 	ttl, err := time.ParseDuration(tokenTTL)
 	if err != nil {
-		ttl = defaultTokenTTL
+		ttl = configs.DefaultTokenTTL
 	}
 
 	return util.GenerateToken(user, ttl)
 }
 
-func (s *AuthService) ParseToken(access string) (int, error) {
+func (s *service) ParseToken(access string) (int, error) {
 	return util.ParseToken(access)
 }

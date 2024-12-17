@@ -1,29 +1,19 @@
 package storage
 
 import (
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage/auth"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage/wallet"
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
-type Authorization interface {
-	CreateUser(user model.User) error
-	GetUser(username, password string) (*model.User, error)
+type Storage struct {
+	*auth.Auth
+	*wallet.Wallet
 }
 
-type Wallet interface {
-	GetBalance(userId int) (*model.Currency, error)
-	Deposit(dep *model.Operation) error
-	Withdraw(with *model.Operation) error
-}
-
-type Repository struct {
-	Authorization
-	Wallet
-}
-
-func NewRepository(db database.DataBase) *Repository {
-	return &Repository{
-		Authorization: NewAuthDB(db),
-		Wallet:        NewWalletDB(db),
+func New(db database.DataBase) *Storage {
+	return &Storage{
+		Auth:   auth.New(db),
+		Wallet: wallet.New(db),
 	}
 }

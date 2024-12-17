@@ -19,8 +19,8 @@ type Handler struct {
 
 func NewHandler(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Handler {
 	return &Handler{
-		Auth:       auth.NewAuth(services, logger, cfg),
-		Wallet:     wallet.NewWallet(services, logger, cfg),
+		Auth:       auth.New(services, logger, cfg),
+		Wallet:     wallet.New(services, logger, cfg),
 		Middleware: middleware.New(services, logger),
 	}
 }

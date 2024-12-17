@@ -1,4 +1,4 @@
-package storage
+package wallet
 
 import (
 	"fmt"
@@ -8,17 +8,17 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
-type WalletDB struct {
+type dataBase struct {
 	db database.DataBase
 }
 
-func NewWalletDB(db database.DataBase) *WalletDB {
-	return &WalletDB{
+func newDatabase(db database.DataBase) *dataBase {
+	return &dataBase{
 		db: db,
 	}
 }
 
-func (w *WalletDB) GetBalance(userId int) (*model.Currency, error) {
+func (w *dataBase) GetBalance(userId int) (*model.Currency, error) {
 	var balance model.Currency
 
 	if err := w.db.Transaction(func(tx *sqlx.Tx) error {
@@ -36,7 +36,7 @@ func (w *WalletDB) GetBalance(userId int) (*model.Currency, error) {
 	return &balance, nil
 }
 
-func (w *WalletDB) Deposit(dep *model.Operation) error {
+func (w *dataBase) Deposit(dep *model.Operation) error {
 	return w.db.Transaction(func(tx *sqlx.Tx) error {
 		var query string
 		switch dep.Currency {
@@ -58,7 +58,7 @@ func (w *WalletDB) Deposit(dep *model.Operation) error {
 	})
 }
 
-func (w *WalletDB) Withdraw(with *model.Operation) error {
+func (w *dataBase) Withdraw(with *model.Operation) error {
 	return w.db.Transaction(func(tx *sqlx.Tx) error {
 		var currentBalance float64
 		var selectQuery, updateQuery string

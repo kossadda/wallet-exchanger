@@ -1,30 +1,19 @@
 package service
 
 import (
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service/auth"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service/wallet"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
 )
 
-type Authorization interface {
-	CreateUser(usr model.User) error
-	GenerateToken(username, password, tokenTTL string) (string, error)
-	ParseToken(token string) (int, error)
-}
-
-type Wallet interface {
-	GetBalance(userId int) (*model.Currency, error)
-	Deposit(dep *model.Operation) error
-	Withdraw(with *model.Operation) error
-}
-
 type Service struct {
-	Authorization
-	Wallet
+	*auth.Auth
+	*wallet.Wallet
 }
 
-func NewService(repos *storage.Repository) *Service {
+func New(repos *storage.Storage) *Service {
 	return &Service{
-		Authorization: NewAuthService(*repos),
-		Wallet:        NewWalletService(*repos),
+		Auth:   auth.New(repos),
+		Wallet: wallet.New(repos),
 	}
 }

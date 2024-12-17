@@ -11,21 +11,21 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
-type Handler struct {
+type handler struct {
 	services *service.Service
 	logger   *slog.Logger
 	config   *configs.ServerConfig
 }
 
-func newHandler(services *service.Service, logger *slog.Logger, config *configs.ServerConfig) *Handler {
-	return &Handler{
+func newHandler(services *service.Service, logger *slog.Logger, config *configs.ServerConfig) *handler {
+	return &handler{
 		services: services,
 		logger:   logger,
 		config:   config,
 	}
 }
 
-func (h *Handler) Register(ctx *gin.Context) {
+func (h *handler) Register(ctx *gin.Context) {
 	var input model.User
 
 	if err := ctx.BindJSON(&input); err != nil {
@@ -42,7 +42,7 @@ func (h *Handler) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, "User registered successfully")
 }
 
-func (h *Handler) Login(ctx *gin.Context) {
+func (h *handler) Login(ctx *gin.Context) {
 	var input model.LogUser
 
 	if err := ctx.BindJSON(&input); err != nil {

@@ -17,7 +17,7 @@ type Auth struct {
 	MainAPI
 }
 
-func NewAuth(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Auth {
+func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Auth {
 	return &Auth{
 		MainAPI: newHandler(services, logger, cfg),
 	}
