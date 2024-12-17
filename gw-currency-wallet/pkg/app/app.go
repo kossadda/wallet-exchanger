@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	walletapp "github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/app"
-	"github.com/kossadda/wallet-exchanger/share/configs"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
 type App struct {

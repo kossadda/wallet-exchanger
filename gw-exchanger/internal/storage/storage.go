@@ -3,8 +3,8 @@ package storage
 import (
 	"context"
 
-	"github.com/kossadda/wallet-exchanger/share/database"
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
+	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
 type Exchanger interface {

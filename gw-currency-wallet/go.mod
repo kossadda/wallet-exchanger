@@ -6,8 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.10.0
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/kossadda/wallet-exchanger/share v0.0.0-20241217114915-3f472c890a9c
-	github.com/sirupsen/logrus v1.9.3
+	github.com/kossadda/wallet-exchanger/share v0.0.0-20241217143106-03d18dd4d0a3
 )
 
 require (

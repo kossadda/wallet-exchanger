@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
-	"github.com/kossadda/wallet-exchanger/share/configs"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
 type Handler struct {

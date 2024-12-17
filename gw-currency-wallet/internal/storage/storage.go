@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
-	"github.com/kossadda/wallet-exchanger/share/database"
+	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
 type Authorization interface {

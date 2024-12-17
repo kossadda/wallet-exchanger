@@ -14,8 +14,8 @@ import (
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/pkg/server"
-	"github.com/kossadda/wallet-exchanger/share/configs"
-	"github.com/kossadda/wallet-exchanger/share/database"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
+	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
 type WalletApp struct {

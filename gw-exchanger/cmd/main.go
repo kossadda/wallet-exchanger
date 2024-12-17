@@ -4,8 +4,8 @@ import (
 	"log/slog"
 
 	"github.com/kossadda/wallet-exchanger/gw-echanger/pkg/app"
-	"github.com/kossadda/wallet-exchanger/share/configs"
-	"github.com/kossadda/wallet-exchanger/share/logger"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
+	"github.com/kossadda/wallet-exchanger/share/pkg/logger"
 )
 
 func main() {
