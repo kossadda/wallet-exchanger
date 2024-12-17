@@ -1,13 +1,21 @@
 package configs
 
-func NewDefaultConfig() *Config {
-	return &Config{
+func NewDefaultConfigDB() *ConfigDB {
+	return &ConfigDB{
 		DBHost:     "localhost",
 		DBPort:     "5436",
 		DBUser:     "postgres",
 		DBPassword: "qwerty",
 		DBName:     "postgres",
 		DBSSLMode:  "disable",
-		ServerPort: "8000",
+	}
+}
+
+func NewDefaultServerConfig() *ServerConfig {
+	return &ServerConfig{
+		Env:         "local",
+		StoragePath: "./",
+		TokenTTL:    "10h",
+		Port:        "8080",
 	}
 }

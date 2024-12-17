@@ -4,46 +4,40 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
-type Config struct {
+type ConfigDB struct {
 	DBHost     string
 	DBPort     string
 	DBUser     string
 	DBPassword string
 	DBName     string
 	DBSSLMode  string
-	ServerPort string
 }
 
-func New(dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode, serverPort string) *Config {
-	return &Config{
+func NewConfigDB(dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode, serverPort string) *ConfigDB {
+	return &ConfigDB{
 		DBHost:     dbHost,
 		DBPort:     dbPort,
 		DBUser:     dbUser,
 		DBPassword: dbPassword,
 		DBName:     dbName,
 		DBSSLMode:  dbSSLMode,
-		ServerPort: serverPort,
 	}
 }
 
-func NewEnvConfig(configPath string) *Config {
+func NewEnvConfigDB(configPath string) *ConfigDB {
 	err := godotenv.Load(configPath)
 	if err != nil {
-		dflt := NewDefaultConfig()
-		logrus.Error(err, "Use default config", dflt)
-		return dflt
+		panic(err)
 	}
 
-	return &Config{
+	return &ConfigDB{
 		DBHost:     os.Getenv("DB_HOST"),
 		DBPort:     os.Getenv("DB_PORT"),
 		DBUser:     os.Getenv("DB_USER"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBName:     os.Getenv("DB_NAME"),
 		DBSSLMode:  os.Getenv("DB_SSLMODE"),
-		ServerPort: os.Getenv("SERVER_PORT"),
 	}
 }
