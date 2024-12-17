@@ -1,9 +1,10 @@
 package app
 
 import (
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/app/grpcapp"
-	"github.com/kossadda/wallet-exchanger/share/configs"
 	"log/slog"
+
+	grpcapp "github.com/kossadda/wallet-exchanger/gw-echanger/internal/app"
+	"github.com/kossadda/wallet-exchanger/share/configs"
 )
 
 type App struct {
@@ -11,8 +12,7 @@ type App struct {
 }
 
 func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerConfig) *App {
-	grpcApp := grpcapp.New(log, dbConf, servConf)
 	return &App{
-		GRPCSrv: grpcApp,
+		GRPCSrv: grpcapp.New(log, dbConf, servConf),
 	}
 }

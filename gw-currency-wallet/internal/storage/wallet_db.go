@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 	"github.com/kossadda/wallet-exchanger/share/database"
 )
 

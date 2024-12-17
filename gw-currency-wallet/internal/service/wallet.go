@@ -1,8 +1,8 @@
 package service
 
 import (
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
 type WalletService struct {

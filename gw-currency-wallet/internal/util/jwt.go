@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 )
 
 const (
@@ -19,10 +19,10 @@ type TokenClaims struct {
 	UserId int `json:"user_id"`
 }
 
-func GenerateToken(user *model.User) (string, error) {
+func GenerateToken(user *model.User, tokenTTL time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		UserId: user.Id,

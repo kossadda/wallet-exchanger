@@ -1,10 +1,13 @@
-package grpcapp
+package app
 
 import (
 	"fmt"
 	"log/slog"
 	"net"
+	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/grpc/exchangegrpc"
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
@@ -66,10 +69,16 @@ func (a *GRPCApp) Run() error {
 	return nil
 }
 
-func (a *GRPCApp) Stop() {
+func (a *GRPCApp) Stop() os.Signal {
 	const op = "grpcapp.Stop"
+
+	quitCh := make(chan os.Signal, 1)
+	signal.Notify(quitCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	sign := <-quitCh
 
 	a.log.With(slog.String("op", op)).Info("stopping gRPC server")
 
 	a.gRPCServer.GracefulStop()
+
+	return sign
 }

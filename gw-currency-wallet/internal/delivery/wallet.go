@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 )
 
 func (h *Handler) getBalance(ctx *gin.Context) {
@@ -12,7 +12,7 @@ func (h *Handler) getBalance(ctx *gin.Context) {
 
 	balance, err := h.services.GetBalance(userId.(int))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -28,19 +28,19 @@ func (h *Handler) deposit(ctx *gin.Context) {
 	}
 
 	if err := ctx.BindJSON(input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.services.Deposit(input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	balance, err := h.services.GetBalance(userId.(int))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -57,19 +57,19 @@ func (h *Handler) withdraw(ctx *gin.Context) {
 	}
 
 	if err := ctx.BindJSON(input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.services.Withdraw(input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	balance, err := h.services.GetBalance(userId.(int))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 

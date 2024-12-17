@@ -1,9 +1,15 @@
 package service
 
 import (
+	"time"
+
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/util"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
+)
+
+const (
+	defaultTokenTTL = time.Hour * 24
 )
 
 type AuthService struct {
@@ -22,13 +28,18 @@ func (s *AuthService) CreateUser(usr model.User) error {
 	return s.repo.CreateUser(usr)
 }
 
-func (s *AuthService) GenerateToken(username, password string) (string, error) {
+func (s *AuthService) GenerateToken(username, password, tokenTTL string) (string, error) {
 	user, err := s.repo.GetUser(username, util.GenerateHash(password, username))
 	if err != nil {
 		return "", err
 	}
 
-	return util.GenerateToken(user)
+	ttl, err := time.ParseDuration(tokenTTL)
+	if err != nil {
+		ttl = defaultTokenTTL
+	}
+
+	return util.GenerateToken(user, ttl)
 }
 
 func (s *AuthService) ParseToken(access string) (int, error) {

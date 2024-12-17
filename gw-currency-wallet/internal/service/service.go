@@ -1,13 +1,13 @@
 package service
 
 import (
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/model"
 )
 
 type Authorization interface {
 	CreateUser(usr model.User) error
-	GenerateToken(username, password string) (string, error)
+	GenerateToken(username, password, tokenTTL string) (string, error)
 	ParseToken(token string) (int, error)
 }
 

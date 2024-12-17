@@ -1,16 +1,28 @@
 package main
 
 import (
+	"log/slog"
+
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/pkg/app"
 	"github.com/kossadda/wallet-exchanger/share/configs"
-	"github.com/sirupsen/logrus"
+	"github.com/kossadda/wallet-exchanger/share/logger"
 )
 
 func main() {
-	cfg := configs.NewEnvConfig("config.env")
+	servCfg := configs.NewServerEnvConfig("config/local.env")
+	dbCfg := configs.NewEnvConfigDB("config/database.env")
+	log := logger.SetupByEnv(servCfg.Env)
 
-	err := app.Run(app.NewCurrecyWallet(cfg))
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	log.Info("start application",
+		slog.String("env", servCfg.Env),
+		slog.Any("server config", servCfg),
+		slog.Any("postgres config", dbCfg),
+	)
+
+	application := app.New(log, dbCfg, servCfg)
+
+	go application.Wallet.MustRun()
+
+	sign := application.Wallet.Stop()
+	log.Info("application stopped", slog.String("signal", sign.String()))
 }

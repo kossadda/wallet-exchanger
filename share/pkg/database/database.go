@@ -2,8 +2,8 @@ package database
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/kossadda/wallet-exchanger/share/configs"
-	"github.com/kossadda/wallet-exchanger/share/database/postgres"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
+	"github.com/kossadda/wallet-exchanger/share/pkg/database/postgres"
 )
 
 const (
