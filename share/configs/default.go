@@ -1,7 +1,7 @@
 package configs
 
 const (
-	defaultGrpcPort          = ":44044"
-	defaultWalletServicePort = ":40404"
-	defaultPostgresPort      = ":5436"
+	DefaultGrpcPort          = "44044"
+	DefaultWalletServicePort = "40404"
+	DefaultPostgresPort      = "5436"
 )
