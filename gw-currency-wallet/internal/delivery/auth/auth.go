@@ -26,12 +26,23 @@ func newHandler(services *service.Service, logger *slog.Logger, config *configs.
 }
 
 func (h *handler) Register(ctx *gin.Context) {
+	const op = "handler.Register"
+
 	var input model.User
 
 	if err := ctx.BindJSON(&input); err != nil {
 		util.NewErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	log := h.logger.With(
+		slog.String("operation", op),
+		slog.String("input login", input.Username),
+		slog.String("input password", input.Password),
+		slog.String("input email", input.Email),
+	)
+
+	log.Info("register in service")
 
 	err := h.services.CreateUser(input)
 	if err != nil {
@@ -43,12 +54,22 @@ func (h *handler) Register(ctx *gin.Context) {
 }
 
 func (h *handler) Login(ctx *gin.Context) {
+	const op = "handler.Login"
+
 	var input model.LogUser
 
 	if err := ctx.BindJSON(&input); err != nil {
 		util.NewErrorResponse(ctx, h.logger, http.StatusUnauthorized, err.Error())
 		return
 	}
+
+	log := h.logger.With(
+		slog.String("operation", op),
+		slog.String("input login", input.Username),
+		slog.String("input password", input.Password),
+	)
+
+	log.Info("authorization to get bearer token")
 
 	token, err := h.services.GenerateToken(input.Username, input.Password, h.config.TokenTTL)
 	if err != nil {

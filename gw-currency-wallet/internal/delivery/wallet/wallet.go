@@ -26,7 +26,16 @@ func newHandler(services *service.Service, logger *slog.Logger, config *configs.
 }
 
 func (h *handler) GetBalance(ctx *gin.Context) {
+	const op = "handler.GetBalance"
+
 	userId, _ := ctx.Get("userId")
+
+	log := h.logger.With(
+		slog.String("operation", op),
+		slog.Any("user ID", userId),
+	)
+
+	log.Info("get user balance")
 
 	balance, err := h.services.GetBalance(userId.(int))
 	if err != nil {
@@ -40,6 +49,8 @@ func (h *handler) GetBalance(ctx *gin.Context) {
 }
 
 func (h *handler) Deposit(ctx *gin.Context) {
+	const op = "handler.Deposit"
+
 	userId, _ := ctx.Get("userId")
 	input := &model.Operation{
 		UserId: userId.(int),
@@ -49,6 +60,15 @@ func (h *handler) Deposit(ctx *gin.Context) {
 		util.NewErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	log := h.logger.With(
+		slog.String("operation", op),
+		slog.Any("user ID", userId),
+		slog.String("input currency", input.Currency),
+		slog.Float64("input amount", input.Amount),
+	)
+
+	log.Info("deposit sum on account")
 
 	err := h.services.Deposit(input)
 	if err != nil {
@@ -69,6 +89,8 @@ func (h *handler) Deposit(ctx *gin.Context) {
 }
 
 func (h *handler) Withdraw(ctx *gin.Context) {
+	const op = "handler.Withdraw"
+
 	userId, _ := ctx.Get("userId")
 	input := &model.Operation{
 		UserId: userId.(int),
@@ -78,6 +100,15 @@ func (h *handler) Withdraw(ctx *gin.Context) {
 		util.NewErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	log := h.logger.With(
+		slog.String("operation", op),
+		slog.Any("user ID", userId),
+		slog.String("input currency", input.Currency),
+		slog.Float64("input amount", input.Amount),
+	)
+
+	log.Info("withdraw sum on account")
 
 	err := h.services.Withdraw(input)
 	if err != nil {
