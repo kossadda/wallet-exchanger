@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/service"
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
 	"google.golang.org/grpc"
 )

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage/exchange"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/storage/exchange"
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 

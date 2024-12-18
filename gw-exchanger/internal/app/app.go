@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/delivery"
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/delivery"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/service"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/storage"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 	"google.golang.org/grpc"

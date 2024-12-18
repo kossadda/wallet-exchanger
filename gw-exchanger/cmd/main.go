@@ -3,7 +3,7 @@ package main
 import (
 	"log/slog"
 
-	"github.com/kossadda/wallet-exchanger/gw-echanger/pkg/app"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/pkg/app"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 	"github.com/kossadda/wallet-exchanger/share/pkg/logger"
 )

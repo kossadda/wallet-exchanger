@@ -1,10 +1,10 @@
-module github.com/kossadda/wallet-exchanger/gw-echanger
+module github.com/kossadda/wallet-exchanger/gw-exchanger
 
 go 1.23.3
 
 require (
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/kossadda/wallet-exchanger/share v0.0.0-20241218101956-9cf4a0ae0241
+	github.com/kossadda/wallet-exchanger/share v0.0.0-20241218114830-1ad80a34d529
 	google.golang.org/grpc v1.69.0
 )
 

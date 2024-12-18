@@ -3,7 +3,7 @@ package app
 import (
 	"log/slog"
 
-	grpcapp "github.com/kossadda/wallet-exchanger/gw-echanger/internal/app"
+	grpcapp "github.com/kossadda/wallet-exchanger/gw-exchanger/internal/app"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 

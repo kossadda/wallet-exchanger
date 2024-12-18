@@ -3,7 +3,7 @@ package exchange
 import (
 	"context"
 
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage"
+	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/storage"
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
 )
 
