@@ -22,7 +22,11 @@ message ExchangeRateResponse {
 }
 
 message ExchangeRatesResponse {
-  map<string, float> rates = 1;
+  map<string, oneCurrencyRate> rates = 1;
+}
+
+message oneCurrencyRate {
+  map<string, float> rate = 1;
 }
 
 message Empty {}
