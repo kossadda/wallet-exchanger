@@ -16,6 +16,6 @@ type Auth struct {
 
 func New(db database.DataBase) *Auth {
 	return &Auth{
-		MainAPI: newDatabase(db),
+		MainAPI: newStorage(db),
 	}
 }

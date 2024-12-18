@@ -8,17 +8,17 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
-type dataBase struct {
+type storage struct {
 	db database.DataBase
 }
 
-func newDatabase(db database.DataBase) *dataBase {
-	return &dataBase{
+func newStorage(db database.DataBase) *storage {
+	return &storage{
 		db: db,
 	}
 }
 
-func (s *dataBase) CreateUser(usr model.User) error {
+func (s *storage) CreateUser(usr model.User) error {
 	return s.db.Transaction(func(tx *sqlx.Tx) error {
 		query := fmt.Sprintf("INSERT INTO %s (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", database.UserTable)
 		var userID int
@@ -35,7 +35,7 @@ func (s *dataBase) CreateUser(usr model.User) error {
 	})
 }
 
-func (s *dataBase) GetUser(username, password string) (*model.User, error) {
+func (s *storage) GetUser(username, password string) (*model.User, error) {
 	var user model.User
 
 	if err := s.db.Transaction(func(tx *sqlx.Tx) error {

@@ -17,6 +17,6 @@ type Wallet struct {
 
 func New(db database.DataBase) *Wallet {
 	return &Wallet{
-		MainAPI: newDatabase(db),
+		MainAPI: newStorage(db),
 	}
 }

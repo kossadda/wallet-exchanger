@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/grpc/exchangegrpc"
+	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/delivery"
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/service"
 	"github.com/kossadda/wallet-exchanger/gw-echanger/internal/storage"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
@@ -32,7 +32,7 @@ func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerCon
 	}
 	services := service.New(storage.New(db))
 
-	exchangegrpc.Register(gRPCServer, services)
+	delivery.Register(gRPCServer, services, log)
 
 	return &GRPCApp{
 		log:        log,

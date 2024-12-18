@@ -2,9 +2,9 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 	_ "github.com/lib/pq"
 )
 
