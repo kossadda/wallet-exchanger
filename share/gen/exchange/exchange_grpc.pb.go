@@ -4,7 +4,7 @@
 // - protoc             v3.21.12
 // source: exchange/exchange.proto
 
-package exchange
+package exchange_grpc
 
 import (
 	context "context"
@@ -19,101 +19,139 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Exchanger_Exchange_FullMethodName = "/exchange.Exchanger/Exchange"
+	ExchangeService_GetExchangeRates_FullMethodName           = "/exchange.ExchangeService/GetExchangeRates"
+	ExchangeService_GetExchangeRateForCurrency_FullMethodName = "/exchange.ExchangeService/GetExchangeRateForCurrency"
 )
 
-// ExchangerClient is the client API for Exchanger service.
+// ExchangeServiceClient is the client API for ExchangeService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ExchangerClient interface {
-	Exchange(ctx context.Context, in *ExchangeRequest, opts ...grpc.CallOption) (*ExchangeResponse, error)
+type ExchangeServiceClient interface {
+	GetExchangeRates(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ExchangeRatesResponse, error)
+	GetExchangeRateForCurrency(ctx context.Context, in *CurrencyRequest, opts ...grpc.CallOption) (*ExchangeRateResponse, error)
 }
 
-type exchangerClient struct {
+type exchangeServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewExchangerClient(cc grpc.ClientConnInterface) ExchangerClient {
-	return &exchangerClient{cc}
+func NewExchangeServiceClient(cc grpc.ClientConnInterface) ExchangeServiceClient {
+	return &exchangeServiceClient{cc}
 }
 
-func (c *exchangerClient) Exchange(ctx context.Context, in *ExchangeRequest, opts ...grpc.CallOption) (*ExchangeResponse, error) {
+func (c *exchangeServiceClient) GetExchangeRates(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ExchangeRatesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ExchangeResponse)
-	err := c.cc.Invoke(ctx, Exchanger_Exchange_FullMethodName, in, out, cOpts...)
+	out := new(ExchangeRatesResponse)
+	err := c.cc.Invoke(ctx, ExchangeService_GetExchangeRates_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ExchangerServer is the server API for Exchanger service.
-// All implementations must embed UnimplementedExchangerServer
-// for forward compatibility.
-type ExchangerServer interface {
-	Exchange(context.Context, *ExchangeRequest) (*ExchangeResponse, error)
-	mustEmbedUnimplementedExchangerServer()
+func (c *exchangeServiceClient) GetExchangeRateForCurrency(ctx context.Context, in *CurrencyRequest, opts ...grpc.CallOption) (*ExchangeRateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExchangeRateResponse)
+	err := c.cc.Invoke(ctx, ExchangeService_GetExchangeRateForCurrency_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-// UnimplementedExchangerServer must be embedded to have
+// ExchangeServiceServer is the server API for ExchangeService service.
+// All implementations must embed UnimplementedExchangeServiceServer
+// for forward compatibility.
+type ExchangeServiceServer interface {
+	GetExchangeRates(context.Context, *Empty) (*ExchangeRatesResponse, error)
+	GetExchangeRateForCurrency(context.Context, *CurrencyRequest) (*ExchangeRateResponse, error)
+	mustEmbedUnimplementedExchangeServiceServer()
+}
+
+// UnimplementedExchangeServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedExchangerServer struct{}
+type UnimplementedExchangeServiceServer struct{}
 
-func (UnimplementedExchangerServer) Exchange(context.Context, *ExchangeRequest) (*ExchangeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Exchange not implemented")
+func (UnimplementedExchangeServiceServer) GetExchangeRates(context.Context, *Empty) (*ExchangeRatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExchangeRates not implemented")
 }
-func (UnimplementedExchangerServer) mustEmbedUnimplementedExchangerServer() {}
-func (UnimplementedExchangerServer) testEmbeddedByValue()                   {}
+func (UnimplementedExchangeServiceServer) GetExchangeRateForCurrency(context.Context, *CurrencyRequest) (*ExchangeRateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExchangeRateForCurrency not implemented")
+}
+func (UnimplementedExchangeServiceServer) mustEmbedUnimplementedExchangeServiceServer() {}
+func (UnimplementedExchangeServiceServer) testEmbeddedByValue()                         {}
 
-// UnsafeExchangerServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ExchangerServer will
+// UnsafeExchangeServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ExchangeServiceServer will
 // result in compilation errors.
-type UnsafeExchangerServer interface {
-	mustEmbedUnimplementedExchangerServer()
+type UnsafeExchangeServiceServer interface {
+	mustEmbedUnimplementedExchangeServiceServer()
 }
 
-func RegisterExchangerServer(s grpc.ServiceRegistrar, srv ExchangerServer) {
-	// If the following call pancis, it indicates UnimplementedExchangerServer was
+func RegisterExchangeServiceServer(s grpc.ServiceRegistrar, srv ExchangeServiceServer) {
+	// If the following call pancis, it indicates UnimplementedExchangeServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Exchanger_ServiceDesc, srv)
+	s.RegisterService(&ExchangeService_ServiceDesc, srv)
 }
 
-func _Exchanger_Exchange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExchangeRequest)
+func _ExchangeService_GetExchangeRates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ExchangerServer).Exchange(ctx, in)
+		return srv.(ExchangeServiceServer).GetExchangeRates(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Exchanger_Exchange_FullMethodName,
+		FullMethod: ExchangeService_GetExchangeRates_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExchangerServer).Exchange(ctx, req.(*ExchangeRequest))
+		return srv.(ExchangeServiceServer).GetExchangeRates(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Exchanger_ServiceDesc is the grpc.ServiceDesc for Exchanger service.
+func _ExchangeService_GetExchangeRateForCurrency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CurrencyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExchangeServiceServer).GetExchangeRateForCurrency(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExchangeService_GetExchangeRateForCurrency_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExchangeServiceServer).GetExchangeRateForCurrency(ctx, req.(*CurrencyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ExchangeService_ServiceDesc is the grpc.ServiceDesc for ExchangeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Exchanger_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "exchange.Exchanger",
-	HandlerType: (*ExchangerServer)(nil),
+var ExchangeService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "exchange.ExchangeService",
+	HandlerType: (*ExchangeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Exchange",
-			Handler:    _Exchanger_Exchange_Handler,
+			MethodName: "GetExchangeRates",
+			Handler:    _ExchangeService_GetExchangeRates_Handler,
+		},
+		{
+			MethodName: "GetExchangeRateForCurrency",
+			Handler:    _ExchangeService_GetExchangeRateForCurrency_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

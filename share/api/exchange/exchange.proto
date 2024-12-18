@@ -2,18 +2,27 @@ syntax = "proto3";
 
 package exchange;
 
-option go_package = "github.com/kossadda/wallet-exchanger/exchange;exchange";
+option go_package = "github.com/proto-exchange/exchange_grpc";
 
-service Exchanger {
-  rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
+service ExchangeService {
+  rpc GetExchangeRates(Empty) returns (ExchangeRatesResponse);
+
+  rpc GetExchangeRateForCurrency(CurrencyRequest) returns (ExchangeRateResponse);
 }
 
-message ExchangeRequest {
-  double sum = 1;
-  string inputCurrency = 2;
-  string outputCurrency = 3;
+message CurrencyRequest {
+  string from_currency = 1;
+  string to_currency = 2;
 }
 
-message ExchangeResponse {
-  double sum = 1;
+message ExchangeRateResponse {
+  string from_currency = 1;
+  string to_currency = 2;
+  float rate = 3;
 }
+
+message ExchangeRatesResponse {
+  map<string, float> rates = 1;
+}
+
+message Empty {}
