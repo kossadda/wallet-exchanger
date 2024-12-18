@@ -38,6 +38,7 @@ func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerCon
 
 	services := service.New(storage.New(db))
 	handler := delivery.NewHandler(services, log, servConf)
+
 	return &WalletApp{
 		log:    log,
 		db:     db,

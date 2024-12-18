@@ -7,6 +7,7 @@ import (
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/auth"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/middleware"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/wallet"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/grpcclient"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
@@ -14,6 +15,7 @@ import (
 type Handler struct {
 	*auth.Auth
 	*wallet.Wallet
+	*grpcclient.Exchange
 	*middleware.Middleware
 }
 
@@ -22,6 +24,7 @@ func NewHandler(services *service.Service, logger *slog.Logger, cfg *configs.Ser
 		Auth:       auth.New(services, logger, cfg),
 		Wallet:     wallet.New(services, logger, cfg),
 		Middleware: middleware.New(services, logger),
+		Exchange:   grpcclient.New(cfg.GrpcHost+":"+cfg.GrpcPort, logger),
 	}
 }
 
@@ -40,6 +43,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		api.GET("/balance", h.GetBalance)
 		api.POST("/wallet/deposit", h.Deposit)
 		api.POST("/wallet/withdraw", h.Withdraw)
+		api.GET("/exchange/rates", h.GetExchangeRates)
 	}
 
 	return router
