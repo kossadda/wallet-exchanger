@@ -3,6 +3,7 @@ package exchange
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/storage"
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
@@ -28,11 +29,11 @@ func (es *service) GetExchangeRateForCurrency(ctx context.Context, req *gen.Curr
 		return nil, err
 	}
 
-	toRates, ok := r.Rates[req.ToCurrency]
+	toRates, ok := r.Rates[strings.ToLower(req.ToCurrency)]
 	if !ok {
 		return nil, fmt.Errorf("invalid output currency %s", req.ToCurrency)
 	}
-	resRate, ok := toRates.Rate[req.FromCurrency]
+	resRate, ok := toRates.Rate[strings.ToLower(req.FromCurrency)]
 	if !ok {
 		return nil, fmt.Errorf("invalid input currency %s", req.FromCurrency)
 	}
