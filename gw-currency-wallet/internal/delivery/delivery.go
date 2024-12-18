@@ -24,7 +24,7 @@ func NewHandler(services *service.Service, logger *slog.Logger, cfg *configs.Ser
 		Auth:       auth.New(services, logger, cfg),
 		Wallet:     wallet.New(services, logger, cfg),
 		Middleware: middleware.New(services, logger),
-		Exchange:   grpcclient.New(cfg.GrpcHost+":"+cfg.GrpcPort, logger),
+		Exchange:   grpcclient.New(cfg.GrpcHost+":"+cfg.GrpcPort, services, logger),
 	}
 }
 
@@ -43,6 +43,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		api.GET("/balance", h.GetBalance)
 		api.POST("/wallet/deposit", h.Deposit)
 		api.POST("/wallet/withdraw", h.Withdraw)
+		api.POST("/exchange", h.ExchangeSum)
 		api.GET("/exchange/rates", h.GetExchangeRates)
 	}
 
