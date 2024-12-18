@@ -11,14 +11,16 @@ type ServerConfig struct {
 	TokenTTL string
 	Port     string
 	GrpcPort string
+	GrpcHost string
 }
 
-func NewServerConfig(env, tokenTTL, port, grpcPort string) *ServerConfig {
+func NewServerConfig(env, tokenTTL, port, grpcPort, grpcHost string) *ServerConfig {
 	return &ServerConfig{
 		Env:      env,
 		TokenTTL: tokenTTL,
 		Port:     port,
 		GrpcPort: grpcPort,
+		GrpcHost: grpcHost,
 	}
 }
 
@@ -33,5 +35,6 @@ func NewServerEnvConfig(configPath string) *ServerConfig {
 		TokenTTL: os.Getenv("APP_TOKEN_TTL"),
 		Port:     os.Getenv("APP_PORT"),
 		GrpcPort: os.Getenv("GRPC_PORT"),
+		GrpcHost: os.Getenv("GRPC_HOST"),
 	}
 }
