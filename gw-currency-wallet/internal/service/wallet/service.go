@@ -7,8 +7,8 @@ import (
 
 type MainAPI interface {
 	GetBalance(userId int) (*model.Currency, error)
-	Deposit(dep *model.Operation) error
-	Withdraw(with *model.Operation) error
+	Deposit(dep *model.Operation) (float64, error)
+	Withdraw(with *model.Operation) (float64, error)
 }
 
 type Wallet struct {

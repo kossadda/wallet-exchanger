@@ -2,11 +2,14 @@ package wallet
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/model"
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
+
+var SupportCurrency = map[string]struct{}{"USD": {}, "RUB": {}, "EUR": {}}
 
 type storage struct {
 	db database.DataBase
@@ -36,46 +39,38 @@ func (w *storage) GetBalance(userId int) (*model.Currency, error) {
 	return &balance, nil
 }
 
-func (w *storage) Deposit(dep *model.Operation) error {
-	return w.db.Transaction(func(tx *sqlx.Tx) error {
-		var query string
-		switch dep.Currency {
-		case "USD":
-			query = fmt.Sprintf("UPDATE %s SET usd = usd + $1 WHERE id = $2", database.WalletTable)
-		case "RUB":
-			query = fmt.Sprintf("UPDATE %s SET rub = rub + $1 WHERE id = $2", database.WalletTable)
-		case "EUR":
-			query = fmt.Sprintf("UPDATE %s SET eur = eur + $1 WHERE id = $2", database.WalletTable)
-		default:
-			return fmt.Errorf("unsupported currency: %s", dep.Currency)
-		}
+func (w *storage) Deposit(dep *model.Operation) (float64, error) {
+	if _, exist := SupportCurrency[dep.Currency]; !exist {
+		return 0, fmt.Errorf("currency %s not supported", dep.Currency)
+	}
 
-		if _, err := tx.Exec(query, dep.Amount, dep.UserId); err != nil {
+	cur := strings.ToLower(dep.Currency)
+
+	var updatedBalance float64
+	if err := w.db.Transaction(func(tx *sqlx.Tx) error {
+		query := fmt.Sprintf("UPDATE %s SET %s = %s + $1 WHERE id = $2 RETURNING %s", database.WalletTable, cur, cur, cur)
+
+		if err := tx.QueryRow(query, dep.Amount, dep.UserId).Scan(&updatedBalance); err != nil {
 			return err
 		}
 
 		return nil
-	})
+	}); err != nil {
+		return 0, err
+	}
+
+	return updatedBalance, nil
 }
 
-func (w *storage) Withdraw(with *model.Operation) error {
-	return w.db.Transaction(func(tx *sqlx.Tx) error {
-		var currentBalance float64
-		var selectQuery, updateQuery string
+func (w *storage) Withdraw(with *model.Operation) (float64, error) {
+	if _, exist := SupportCurrency[with.Currency]; !exist {
+		return 0, fmt.Errorf("currency %s not supported", with.Currency)
+	}
 
-		switch with.Currency {
-		case "USD":
-			selectQuery = fmt.Sprintf("SELECT usd FROM %s WHERE id = $1", database.WalletTable)
-			updateQuery = fmt.Sprintf("UPDATE %s SET usd = usd - $1 WHERE id = $2", database.WalletTable)
-		case "RUB":
-			selectQuery = fmt.Sprintf("SELECT rub FROM %s WHERE id = $1", database.WalletTable)
-			updateQuery = fmt.Sprintf("UPDATE %s SET rub = rub - $1 WHERE id = $2", database.WalletTable)
-		case "EUR":
-			selectQuery = fmt.Sprintf("SELECT eur FROM %s WHERE id = $1", database.WalletTable)
-			updateQuery = fmt.Sprintf("UPDATE %s SET eur = eur - $1 WHERE id = $2", database.WalletTable)
-		default:
-			return fmt.Errorf("unsupported currency: %s", with.Currency)
-		}
+	var currentBalance float64
+	if err := w.db.Transaction(func(tx *sqlx.Tx) error {
+		selectQuery := fmt.Sprintf("SELECT %s FROM %s WHERE id = $1", strings.ToLower(with.Currency), database.WalletTable)
+		updateQuery := fmt.Sprintf("UPDATE %s SET %s = %s - $1 WHERE id = $2", database.WalletTable, strings.ToLower(with.Currency), strings.ToLower(with.Currency))
 
 		if err := tx.QueryRow(selectQuery, with.UserId).Scan(&currentBalance); err != nil {
 			return err
@@ -89,6 +84,14 @@ func (w *storage) Withdraw(with *model.Operation) error {
 			return err
 		}
 
+		if err := tx.QueryRow(selectQuery, with.UserId).Scan(&currentBalance); err != nil {
+			return err
+		}
+
 		return nil
-	})
+	}); err != nil {
+		return 0, err
+	}
+
+	return currentBalance, nil
 }

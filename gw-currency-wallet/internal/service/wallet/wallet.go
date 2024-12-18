@@ -19,10 +19,10 @@ func (w *service) GetBalance(userId int) (*model.Currency, error) {
 	return w.repo.GetBalance(userId)
 }
 
-func (w *service) Deposit(dep *model.Operation) error {
+func (w *service) Deposit(dep *model.Operation) (float64, error) {
 	return w.repo.Deposit(dep)
 }
 
-func (w *service) Withdraw(dep *model.Operation) error {
+func (w *service) Withdraw(dep *model.Operation) (float64, error) {
 	return w.repo.Withdraw(dep)
 }

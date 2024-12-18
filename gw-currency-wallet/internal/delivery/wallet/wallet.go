@@ -70,7 +70,7 @@ func (h *handler) Deposit(ctx *gin.Context) {
 
 	log.Info("deposit sum on account")
 
-	err := h.services.Deposit(input)
+	_, err := h.services.Deposit(input)
 	if err != nil {
 		util.NewErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return
@@ -110,7 +110,7 @@ func (h *handler) Withdraw(ctx *gin.Context) {
 
 	log.Info("withdraw sum on account")
 
-	err := h.services.Withdraw(input)
+	_, err := h.services.Withdraw(input)
 	if err != nil {
 		util.NewErrorResponse(ctx, h.logger, http.StatusBadRequest, err.Error())
 		return

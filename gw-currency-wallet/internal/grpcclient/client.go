@@ -86,33 +86,32 @@ func (c *Exchange) ExchangeSum(ctx *gin.Context) {
 		return
 	}
 
-	if err = c.services.Withdraw(&model.Operation{
+	updateFrom, err := c.services.Withdraw(&model.Operation{
 		UserId:   userId.(int),
 		Currency: input.FromCurrency,
 		Amount:   input.Amount,
-	}); err != nil {
-		util.NewErrorResponse(ctx, c.logger, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if err = c.services.Deposit(&model.Operation{
-		UserId:   userId.(int),
-		Currency: input.ToCurrency,
-		Amount:   input.Amount * float64(response.Rate),
-	}); err != nil {
-		util.NewErrorResponse(ctx, c.logger, http.StatusBadRequest, err.Error())
-	}
-
-	balance, err := c.services.GetBalance(userId.(int))
+	})
 	if err != nil {
 		util.NewErrorResponse(ctx, c.logger, http.StatusBadRequest, err.Error())
 		return
 	}
 
+	updateTo, err := c.services.Deposit(&model.Operation{
+		UserId:   userId.(int),
+		Currency: input.ToCurrency,
+		Amount:   input.Amount * float64(response.Rate),
+	})
+	if err != nil {
+		util.NewErrorResponse(ctx, c.logger, http.StatusBadRequest, err.Error())
+	}
+
 	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message":          "Exchange successful",
 		"exchanged_amount": input.Amount,
-		"new_balance":      balance,
+		"new_balance": map[string]float64{
+			input.FromCurrency: updateFrom,
+			input.ToCurrency:   updateTo,
+		},
 	})
 }
 
