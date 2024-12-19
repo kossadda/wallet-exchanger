@@ -29,7 +29,7 @@ func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConf
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
 	authorize := router.Group("/api/v1")

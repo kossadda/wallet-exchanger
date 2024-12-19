@@ -13,6 +13,10 @@ type PostgresDB struct {
 }
 
 func New(cfg *configs.ConfigDB) (*PostgresDB, error) {
+	if cfg.DBPort == "" {
+		cfg.DBPort = configs.DefaultPostgresPort
+	}
+
 	db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode))
 	if err != nil {

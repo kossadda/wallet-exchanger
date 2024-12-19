@@ -12,6 +12,6 @@ COPY --from=builder /app/config /config
 
 RUN chmod +x /wait-for-it.sh
 
-EXPOSE 8080
+EXPOSE 44044
 
 CMD ["/wait-for-it.sh", "db", "5432", "--", "/main"]

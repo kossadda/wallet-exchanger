@@ -9,17 +9,44 @@ import (
 )
 
 func main() {
-	servCfg := configs.NewServerEnvConfig("config/local.env")
-	dbCfg := configs.NewEnvConfigDB("config/database.env")
-	log := logger.SetupByEnv(servCfg.Env)
+	servConf := &configs.ServerConfig{
+		Env:         "local",
+		TokenExpire: "10h",
+		CacheExpire: "1m",
+		Servers: map[string]configs.Server{
+			"APP": configs.Server{
+				Host: "localhost",
+				Port: "8080",
+			},
+			"GRPC": configs.Server{
+				Host: "localhost",
+				Port: "44044",
+			},
+			"CACHE": configs.Server{
+				Host: "localhost",
+				Port: "6379",
+			},
+		},
+	}
+
+	dbConf := &configs.ConfigDB{
+		DBHost:     "localhost",
+		DBPort:     "5436",
+		DBUser:     "postgres",
+		DBPassword: "qwerty",
+		DBName:     "postgres",
+		DBSSLMode:  "disable",
+	}
+
+	log := logger.SetupByEnv(servConf.Env)
 
 	log.Info("start application",
-		slog.String("env", servCfg.Env),
-		slog.Any("server config", servCfg),
-		slog.Any("postgres config", dbCfg),
+		slog.String("env", servConf.Env),
+		slog.Any("server config", servConf),
+		slog.Any("postgres config", dbConf),
 	)
 
-	application := app.New(log, dbCfg, servCfg)
+	application := app.New(log, dbConf, servConf)
 
 	go application.Wallet.MustRun()
 

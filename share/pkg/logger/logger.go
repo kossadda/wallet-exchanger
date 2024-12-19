@@ -114,22 +114,16 @@ func SetupLogger() *slog.Logger {
 }
 
 func SetupByEnv(env string) *slog.Logger {
-	var lg *slog.Logger
-
 	switch env {
 	case envLocal:
-		lg = SetupLogger()
+		return SetupLogger()
 	case envDev:
-		lg = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	case envProd:
-		lg = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	}
 
-	return lg
+	return SetupLogger()
 }
 
 func Err(err error) slog.Attr {

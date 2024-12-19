@@ -56,8 +56,13 @@ func NewServerEnvConfig(configPath string) *ServerConfig {
 		}
 	}
 
+	env := os.Getenv("APP_ENV")
+	if env != "" {
+		env = DefaultENV
+	}
+
 	return &ServerConfig{
-		Env:         os.Getenv("APP_ENV"),
+		Env:         env,
 		TokenExpire: os.Getenv("TOKEN_EXPIRE"),
 		CacheExpire: os.Getenv("CACHE_EXPIRE"),
 		Servers:     serverMap,

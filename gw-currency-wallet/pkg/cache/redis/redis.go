@@ -29,9 +29,14 @@ func New(ctx context.Context, cfg *configs.ServerConfig) (*Cache, error) {
 		return nil, fmt.Errorf("failed to connect to redis server: %s", err.Error())
 	}
 
+	cacheExp, err := time.ParseDuration(cfg.CacheExpire)
+	if err != nil {
+		cacheExp = configs.DefaultCacheExpire
+	}
+
 	return &Cache{
 		client: db,
-		expiry: configs.DefaultCacheExpire,
+		expiry: cacheExp,
 	}, nil
 }
 
