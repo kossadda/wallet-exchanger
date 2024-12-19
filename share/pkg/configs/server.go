@@ -7,20 +7,27 @@ import (
 )
 
 type ServerConfig struct {
-	Env      string
-	TokenTTL string
-	Port     string
-	GrpcPort string
-	GrpcHost string
+	Env     string
+	Expire  string
+	Servers map[string]Server
 }
 
-func NewServerConfig(env, tokenTTL, port, grpcPort, grpcHost string) *ServerConfig {
+type Server struct {
+	ServerName string
+	Port       string
+	Host       string
+}
+
+func NewServerConfig(env, expire string, servers ...Server) *ServerConfig {
+	serverMap := make(map[string]Server)
+	for _, server := range servers {
+		serverMap[server.ServerName] = server
+	}
+
 	return &ServerConfig{
-		Env:      env,
-		TokenTTL: tokenTTL,
-		Port:     port,
-		GrpcPort: grpcPort,
-		GrpcHost: grpcHost,
+		Env:     env,
+		Expire:  expire,
+		Servers: serverMap,
 	}
 }
 
@@ -30,11 +37,26 @@ func NewServerEnvConfig(configPath string) *ServerConfig {
 		panic(err)
 	}
 
+	serverMap := make(map[string]Server)
+
+	serverPrefixes := []string{"APP", "GRPC", "CACHE"}
+
+	for _, prefix := range serverPrefixes {
+		host := os.Getenv(prefix + "_HOST")
+		port := os.Getenv(prefix + "_PORT")
+
+		if host != "" && port != "" {
+			serverMap[prefix] = Server{
+				ServerName: prefix,
+				Port:       port,
+				Host:       host,
+			}
+		}
+	}
+
 	return &ServerConfig{
-		Env:      os.Getenv("APP_ENV"),
-		TokenTTL: os.Getenv("APP_TOKEN_TTL"),
-		Port:     os.Getenv("APP_PORT"),
-		GrpcPort: os.Getenv("GRPC_PORT"),
-		GrpcHost: os.Getenv("GRPC_HOST"),
+		Env:     os.Getenv("APP_ENV"),
+		Expire:  os.Getenv("EXPIRE"),
+		Servers: serverMap,
 	}
 }
