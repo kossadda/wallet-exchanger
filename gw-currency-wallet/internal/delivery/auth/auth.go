@@ -71,7 +71,7 @@ func (h *handler) Login(ctx *gin.Context) {
 
 	log.Info("authorization to get bearer token")
 
-	token, err := h.services.GenerateToken(input.Username, input.Password, h.config.TokenTTL)
+	token, err := h.services.GenerateToken(input.Username, input.Password, h.config.Expire)
 	if err != nil {
 		util.NewErrorResponse(ctx, h.logger, http.StatusUnauthorized, "Invalid username or password")
 		return

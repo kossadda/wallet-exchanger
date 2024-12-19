@@ -33,7 +33,7 @@ func (s *service) GenerateToken(username, password, tokenTTL string) (string, er
 
 	ttl, err := time.ParseDuration(tokenTTL)
 	if err != nil {
-		ttl = configs.DefaultTokenTTL
+		ttl = configs.DefaultTokenExpire
 	}
 
 	return util.GenerateToken(user, ttl)

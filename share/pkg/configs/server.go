@@ -7,9 +7,10 @@ import (
 )
 
 type ServerConfig struct {
-	Env     string
-	Expire  string
-	Servers map[string]Server
+	Env         string
+	TokenExpire string
+	CacheExpire string
+	Servers     map[string]Server
 }
 
 type Server struct {
@@ -18,16 +19,17 @@ type Server struct {
 	Host       string
 }
 
-func NewServerConfig(env, expire string, servers ...Server) *ServerConfig {
+func NewServerConfig(env, tokenExp, cacheExp string, servers ...Server) *ServerConfig {
 	serverMap := make(map[string]Server)
 	for _, server := range servers {
 		serverMap[server.ServerName] = server
 	}
 
 	return &ServerConfig{
-		Env:     env,
-		Expire:  expire,
-		Servers: serverMap,
+		Env:         env,
+		TokenExpire: tokenExp,
+		CacheExpire: cacheExp,
+		Servers:     serverMap,
 	}
 }
 
@@ -55,8 +57,9 @@ func NewServerEnvConfig(configPath string) *ServerConfig {
 	}
 
 	return &ServerConfig{
-		Env:     os.Getenv("APP_ENV"),
-		Expire:  os.Getenv("EXPIRE"),
-		Servers: serverMap,
+		Env:         os.Getenv("APP_ENV"),
+		TokenExpire: os.Getenv("TOKEN_EXPIRE"),
+		CacheExpire: os.Getenv("CACHE_EXPIRE"),
+		Servers:     serverMap,
 	}
 }

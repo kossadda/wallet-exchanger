@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/kossadda/wallet-exchanger/share v0.0.0-20241218114830-1ad80a34d529
+	github.com/kossadda/wallet-exchanger/share v0.0.0-20241219152012-1738f1ecb101
 	google.golang.org/grpc v1.69.0
 )
 

@@ -34,10 +34,16 @@ func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerCon
 
 	delivery.Register(gRPCServer, services, log)
 
+	appAddr, ok := servConf.Servers["APP"]
+	if !ok {
+		appAddr.Host = "localhost"
+		appAddr.Port = configs.DefaultGrpcPort
+	}
+
 	return &GRPCApp{
 		log:        log,
 		gRPCServer: gRPCServer,
-		port:       servConf.Port,
+		port:       appAddr.Port,
 	}
 }
 

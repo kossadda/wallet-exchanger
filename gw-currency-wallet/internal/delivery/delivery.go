@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/auth"
+	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/grpcclient"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/middleware"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery/wallet"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/grpcclient"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
@@ -19,12 +19,12 @@ type Handler struct {
 	*middleware.Middleware
 }
 
-func NewHandler(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Handler {
+func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Handler {
 	return &Handler{
 		Auth:       auth.New(services, logger, cfg),
 		Wallet:     wallet.New(services, logger, cfg),
 		Middleware: middleware.New(services, logger),
-		Exchange:   grpcclient.New(cfg.GrpcHost+":"+cfg.GrpcPort, services, logger),
+		Exchange:   grpcclient.New(services, logger),
 	}
 }
 

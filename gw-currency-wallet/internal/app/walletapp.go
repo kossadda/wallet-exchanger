@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery"
@@ -21,6 +21,7 @@ import (
 type WalletApp struct {
 	log    *slog.Logger
 	db     database.DataBase
+	hnd    *delivery.Handler
 	server *server.Server
 	config *configs.ServerConfig
 }
@@ -28,21 +29,24 @@ type WalletApp struct {
 func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerConfig) *WalletApp {
 	db, err := database.NewPostgres(dbConf)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("walletApp.New: %v", err))
 	}
 
-	_, err = strconv.Atoi(servConf.Port)
-	if err != nil {
-		servConf.Port = configs.DefaultWalletServicePort
+	appAddr, ok := servConf.Servers["APP"]
+	if !ok {
+		appAddr.Host = "localhost"
+		appAddr.Port = configs.DefaultWalletServicePort
 	}
 
-	services := service.New(storage.New(db))
-	handler := delivery.NewHandler(services, log, servConf)
+	services := service.New(storage.New(db), servConf)
+	handler := delivery.New(services, log, servConf)
+	serv := server.New(appAddr.Port, handler.InitRoutes())
 
 	return &WalletApp{
 		log:    log,
 		db:     db,
-		server: server.New(servConf.Port, handler.InitRoutes()),
+		hnd:    handler,
+		server: serv,
 		config: servConf,
 	}
 }
@@ -77,6 +81,7 @@ func (a *WalletApp) Stop() os.Signal {
 
 	_ = a.db.Close()
 	_ = a.server.Shutdown(context.Background())
+	_ = a.hnd.CloseGRPC()
 
 	return sign
 }
