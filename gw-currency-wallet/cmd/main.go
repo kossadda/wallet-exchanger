@@ -9,35 +9,8 @@ import (
 )
 
 func main() {
-	servConf := &configs.ServerConfig{
-		Env:         "local",
-		TokenExpire: "10h",
-		CacheExpire: "1m",
-		Servers: map[string]configs.Server{
-			"APP": configs.Server{
-				Host: "localhost",
-				Port: "8080",
-			},
-			"GRPC": configs.Server{
-				Host: "localhost",
-				Port: "44044",
-			},
-			"CACHE": configs.Server{
-				Host: "localhost",
-				Port: "6379",
-			},
-		},
-	}
-
-	dbConf := &configs.ConfigDB{
-		DBHost:     "localhost",
-		DBPort:     "5436",
-		DBUser:     "postgres",
-		DBPassword: "qwerty",
-		DBName:     "postgres",
-		DBSSLMode:  "disable",
-	}
-
+	servConf := configs.NewServerEnvConfig("config/local.env")
+	dbConf := configs.NewEnvConfigDB("config/database.env")
 	log := logger.SetupByEnv(servConf.Env)
 
 	log.Info("start application",

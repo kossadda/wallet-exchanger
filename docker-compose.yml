@@ -12,7 +12,7 @@ services:
     volumes:
       - ./db/migrations:/docker-entrypoint-initdb.d
 
-  grpc:
+  exchange:
     build: gw-exchanger/
     depends_on:
       - db
@@ -33,7 +33,7 @@ services:
     depends_on:
       - db
       - redis
-      - grpc
+      - exchange
     ports:
       - "8080:8080"
     volumes:
