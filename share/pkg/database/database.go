@@ -12,6 +12,7 @@ const (
 	CurrencyTable = "currency"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=DataBase
 type DataBase interface {
 	Transaction(fn func(tx *sqlx.Tx) error) error
 	Close() error
