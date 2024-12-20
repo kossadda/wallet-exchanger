@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"syscall"
 	"testing"
 	"time"
@@ -11,8 +10,12 @@ import (
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 	"github.com/kossadda/wallet-exchanger/share/pkg/logger"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
+// It is necessary to deploy a postgres server on localhost:5436
+// with the relations specified in the file root/db/migrations
 func TestAll(t *testing.T) {
 	ctx, s := suite.New(t)
 	dbConf := &configs.ConfigDB{
@@ -31,35 +34,52 @@ func TestAll(t *testing.T) {
 	go application.GRPCSrv.MustRun()
 
 	t.Run("exchangeRates", func(t *testing.T) {
-		exchangeRates(t, s, ctx)
+		resp, err := s.Client.GetExchangeRates(ctx, &gen.Empty{})
+		require.NoError(t, err)
+		assert.NotEmpty(t, resp)
 	})
 
 	t.Run("exchangeRateForCurrency", func(t *testing.T) {
-		resp, err := exchangeRateForCurrency(t, s, ctx, "USD", "RUB")
-		if err != nil && resp != nil {
-			t.Fatalf("error getting exchange rates: %v", err)
-		}
-		if expected := float32(103.6); resp.Rate != expected {
-			t.Fatalf("expected rate USD to RUB %f, got %f", expected, resp.Rate)
-		}
+		resp, err := s.Client.GetExchangeRateForCurrency(ctx, &gen.CurrencyRequest{
+			FromCurrency: "USD",
+			ToCurrency:   "RUB",
+		})
+		require.NoError(t, err)
+		require.Equal(t, float32(103.6), resp.Rate)
 	})
 
-	t.Run("exchangeRateForCurrencyError1", func(t *testing.T) {
-		_, err := exchangeRateForCurrency(t, s, ctx, "US", "RUB")
-		if err == nil {
-			t.Fatal("excepted error, but got nil")
+	t.Run("exchangeRateForCurrencyError", func(t *testing.T) {
+		tests := []struct {
+			name string
+			from string
+			to   string
+		}{
+			{
+				name: "wrong input",
+				from: "US",
+				to:   "RUB",
+			},
+			{
+				name: "wrong input",
+				from: "USD",
+				to:   "RU",
+			},
+			{
+				name: "wrong input",
+				from: "",
+				to:   "",
+			},
 		}
-	})
-	t.Run("exchangeRateForCurrencyError2", func(t *testing.T) {
-		_, err := exchangeRateForCurrency(t, s, ctx, "USD", "RU")
-		if err == nil {
-			t.Fatal("excepted error, but got nil")
-		}
-	})
-	t.Run("exchangeRateForCurrencyEmpty", func(t *testing.T) {
-		_, err := exchangeRateForCurrency(t, s, ctx, "", "")
-		if err == nil {
-			t.Fatal("excepted error, but got nil")
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				resp, err := s.Client.GetExchangeRateForCurrency(ctx, &gen.CurrencyRequest{
+					FromCurrency: tt.from,
+					ToCurrency:   tt.to,
+				})
+				assert.Error(t, err)
+				assert.Empty(t, resp)
+			})
 		}
 	})
 
@@ -69,18 +89,4 @@ func TestAll(t *testing.T) {
 	}()
 
 	_ = application.GRPCSrv.Stop()
-}
-
-func exchangeRates(t *testing.T, s *suite.Suite, ctx context.Context) {
-	resp, err := s.Client.GetExchangeRates(ctx, &gen.Empty{})
-	if err != nil && resp != nil {
-		t.Fatalf("error getting exchange rates: %v", err)
-	}
-}
-
-func exchangeRateForCurrency(t *testing.T, s *suite.Suite, ctx context.Context, from, to string) (*gen.ExchangeRateResponse, error) {
-	return s.Client.GetExchangeRateForCurrency(ctx, &gen.CurrencyRequest{
-		FromCurrency: from,
-		ToCurrency:   to,
-	})
 }

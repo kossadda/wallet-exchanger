@@ -3,13 +3,13 @@ package suite
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"testing"
 	"time"
 
 	gen "github.com/kossadda/wallet-exchanger/share/gen/exchange"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Suite struct {
@@ -57,29 +57,3 @@ func New(t *testing.T) (context.Context, *Suite) {
 		Client: gen.NewExchangeServiceClient(conn),
 	}
 }
-
-//application := app.New(
-//	logger.SetupByEnv("local"),
-//	&configs.ConfigDB{
-//		DBHost:     "localhost",
-//		DBPort:     "5436",
-//		DBUser:     "postgres",
-//		DBPassword: "qwerty",
-//		DBName:     "postgres",
-//		DBSSLMode:  "disable",
-//	},
-//	&configs.ServerConfig{
-//		Env:         "local",
-//		TokenExpire: "10h",
-//		CacheExpire: "1m",
-//		Servers: map[string]configs.Server{
-//			"APP": configs.Server{
-//				Host: "localhost",
-//				Port: "44044",
-//			},
-//		},
-//	},
-//)
-//
-//go application.GRPCSrv.MustRun()
-//application.GRPCSrv.Stop()
