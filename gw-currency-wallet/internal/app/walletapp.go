@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,8 +10,6 @@ import (
 	"syscall"
 
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/delivery"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/service"
-	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/internal/storage"
 	"github.com/kossadda/wallet-exchanger/gw-currency-wallet/pkg/server"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
@@ -26,27 +23,18 @@ type WalletApp struct {
 	config *configs.ServerConfig
 }
 
-func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerConfig) *WalletApp {
-	db, err := database.NewPostgres(dbConf)
-	if err != nil {
-		panic(fmt.Sprintf("walletApp.New: %v", err))
-	}
-
+func New(log *slog.Logger, db database.DataBase, hnd *delivery.Handler, servConf *configs.ServerConfig) *WalletApp {
 	appAddr, ok := servConf.Servers["APP"]
 	if !ok {
 		appAddr.Host = "localhost"
 		appAddr.Port = configs.DefaultWalletServicePort
 	}
 
-	services := service.New(storage.New(db), servConf)
-	handler := delivery.New(services, log, servConf)
-	serv := server.New(appAddr.Port, handler.InitRoutes())
-
 	return &WalletApp{
 		log:    log,
 		db:     db,
-		hnd:    handler,
-		server: serv,
+		hnd:    hnd,
+		server: server.New(appAddr.Port, hnd.InitRoutes()),
 		config: servConf,
 	}
 }

@@ -11,9 +11,7 @@ import (
 
 	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/delivery"
 	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/service"
-	"github.com/kossadda/wallet-exchanger/gw-exchanger/internal/storage"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
-	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 	"google.golang.org/grpc"
 )
 
@@ -23,27 +21,13 @@ type GRPCApp struct {
 	port       string
 }
 
-func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerConfig) *GRPCApp {
-	gRPCServer := grpc.NewServer()
-
-	db, err := database.NewPostgres(dbConf)
-	if err != nil {
-		panic(err)
-	}
-	services := service.New(storage.New(db))
-
+func New(log *slog.Logger, gRPCServer *grpc.Server, services *service.Service, port string) *GRPCApp {
 	delivery.Register(gRPCServer, services, log)
-
-	appAddr, ok := servConf.Servers["APP"]
-	if !ok {
-		appAddr.Host = "localhost"
-		appAddr.Port = configs.DefaultGrpcPort
-	}
 
 	return &GRPCApp{
 		log:        log,
 		gRPCServer: gRPCServer,
-		port:       appAddr.Port,
+		port:       port,
 	}
 }
 
