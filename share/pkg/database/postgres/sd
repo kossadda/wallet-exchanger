@@ -1,0 +1,416 @@
+kossadda@asus:~/Desktop/wallet-exchanger/share$ find . -type f -exec sh -c 'echo "Файл: {}"; cat {}' \;
+Файл: ./share/go.mod
+module github.com/kossadda/wallet-exchanger/share
+
+go 1.23.3
+
+require (
+        github.com/fatih/color v1.18.0
+        github.com/jmoiron/sqlx v1.4.0
+        github.com/joho/godotenv v1.5.1
+        github.com/lib/pq v1.10.9
+        github.com/stretchr/testify v1.10.0
+        google.golang.org/grpc v1.69.0
+        google.golang.org/protobuf v1.35.2
+)
+
+require (
+        github.com/davecgh/go-spew v1.1.1 // indirect
+        github.com/mattn/go-colorable v0.1.13 // indirect
+        github.com/mattn/go-isatty v0.0.20 // indirect
+        github.com/pmezard/go-difflib v1.0.0 // indirect
+        github.com/stretchr/objx v0.5.2 // indirect
+        golang.org/x/net v0.30.0 // indirect
+        golang.org/x/sys v0.26.0 // indirect
+        golang.org/x/text v0.19.0 // indirect
+        google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53 // indirect
+        gopkg.in/yaml.v3 v3.0.1 // indirect
+)
+Файл: ./share/Makefile
+.PHONY: gen
+gen:
+        protoc -I api api/exchange/exchange.proto --go_out=./gen/ --go_opt=paths=source_relative --go-grpc_out=./gen/ --go-grpc_opt=paths=source_relativeФайл: ./share/api/exchange/exchange.proto
+syntax = "proto3";
+
+package exchange;
+
+option go_package = "github.com/proto-exchange/exchange_grpc";
+
+service ExchangeService {
+  rpc GetExchangeRates(Empty) returns (ExchangeRatesResponse);
+
+  rpc GetExchangeRateForCurrency(CurrencyRequest) returns (ExchangeRateResponse);
+}
+
+message CurrencyRequest {
+  string from_currency = 1;
+  string to_currency = 2;
+}
+
+message ExchangeRateResponse {
+  string from_currency = 1;
+  string to_currency = 2;
+  float rate = 3;
+}
+
+message ExchangeRatesResponse {
+  map<string, oneCurrencyRate> rates = 1;
+}
+
+message oneCurrencyRate {
+  map<string, float> rate = 1;
+}
+
+message Empty {}Файл: ./share/pkg/logger/logger.go
+package logger
+
+import (
+        "context"
+        "encoding/json"
+        "io"
+        "log"
+        "log/slog"
+        "os"
+
+        "github.com/fatih/color"
+)
+
+const (
+        envLocal = "local"
+        envDev   = "dev"
+        envProd  = "prod"
+)
+
+type HandlerOptions struct {
+        SlogOpts *slog.HandlerOptions
+}
+
+type Handler struct {
+        opts HandlerOptions
+        slog.Handler
+        l     *log.Logger
+        attrs []slog.Attr
+}
+
+func (opts HandlerOptions) NewHandler(out io.Writer) *Handler {
+        h := &Handler{
+                Handler: slog.NewJSONHandler(out, opts.SlogOpts),
+                l:       log.New(out, "", 0),
+        }
+
+        return h
+}
+
+func (h *Handler) Handle(_ context.Context, r slog.Record) error {
+        level := r.Level.String() + ":"
+
+        switch r.Level {
+        case slog.LevelDebug:
+                level = color.MagentaString(level)
+        case slog.LevelInfo:
+                level = color.BlueString(level)
+        case slog.LevelWarn:
+                level = color.YellowString(level)
+        case slog.LevelError:
+                level = color.RedString(level)
+        }
+
+        fields := make(map[string]interface{}, r.NumAttrs())
+
+        r.Attrs(func(a slog.Attr) bool {
+                fields[a.Key] = a.Value.Any()
+
+                return true
+        })
+
+        for _, a := range h.attrs {
+                fields[a.Key] = a.Value.Any()
+        }
+
+        var b []byte
+        var err error
+
+        if len(fields) > 0 {
+                b, err = json.MarshalIndent(fields, "", "  ")
+                if err != nil {
+                        return err
+                }
+        }
+
+        timeStr := r.Time.Format("[15:05:05.000]")
+        msg := color.CyanString(r.Message)
+
+        h.l.Println(
+                timeStr,
+                level,
+                msg,
+                color.WhiteString(string(b)),
+        )
+
+        return nil
+}
+
+func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
+        return &Handler{
+                Handler: h.Handler,
+                l:       h.l,
+                attrs:   attrs,
+        }
+}
+
+func (h *Handler) WithGroup(name string) slog.Handler {
+        return &Handler{
+                Handler: h.Handler.WithGroup(name),
+                l:       h.l,
+        }
+}
+
+func SetupLogger() *slog.Logger {
+        opts := HandlerOptions{
+                SlogOpts: &slog.HandlerOptions{
+                        Level: slog.LevelDebug,
+                },
+        }
+
+        handler := opts.NewHandler(os.Stdout)
+
+        return slog.New(handler)
+}
+
+func SetupByEnv(env string) *slog.Logger {
+        switch env {
+        case envLocal:
+                return SetupLogger()
+        case envDev:
+                return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+        case envProd:
+                return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+        }
+
+        return SetupLogger()
+}
+
+func Err(err error) slog.Attr {
+        return slog.Attr{
+                Key:   "error",
+                Value: slog.StringValue(err.Error()),
+        }
+}
+Файл: ./share/pkg/database/database.go
+package database
+
+import (
+        "github.com/jmoiron/sqlx"
+        "github.com/kossadda/wallet-exchanger/share/pkg/configs"
+        "github.com/kossadda/wallet-exchanger/share/pkg/database/postgres"
+)
+
+const (
+        UserTable     = "users"
+        WalletTable   = "wallets"
+        CurrencyTable = "currency"
+)
+
+type DataBase interface {
+        Transaction(fn func(tx *sqlx.Tx) error) error
+        Close() error
+}
+
+func NewPostgres(cfg *configs.ConfigDB) (DataBase, error) {
+        return postgres.New(cfg)
+}
+Файл: ./share/pkg/database/postgres/postgres.go
+package postgres
+
+import (
+        "fmt"
+
+        "github.com/jmoiron/sqlx"
+        "github.com/kossadda/wallet-exchanger/share/pkg/configs"
+        _ "github.com/lib/pq"
+)
+
+type PostgresDB struct {
+        db *sqlx.DB
+}
+
+func New(cfg *configs.ConfigDB) (*PostgresDB, error) {
+        if cfg.DBPort == "" {
+                cfg.DBPort = configs.DefaultPostgresPort
+        }
+
+        db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+                cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode))
+        if err != nil {
+                return nil, err
+        }
+
+        if err := db.Ping(); err != nil {
+                return nil, err
+        }
+
+        return &PostgresDB{db: db}, nil
+}
+
+func (p *PostgresDB) Transaction(fn func(tx *sqlx.Tx) error) error {
+        tx, err := p.db.Beginx()
+        if err != nil {
+                return err
+        }
+
+        if err := fn(tx); err != nil {
+                if rollbackErr := tx.Rollback(); rollbackErr != nil {
+                        return fmt.Errorf("transaction rollback error: %v, original error: %v", rollbackErr, err)
+                }
+                return err
+        }
+
+        return tx.Commit()
+}
+
+func (p *PostgresDB) Close() error {
+        return p.db.Close()
+}
+Файл: ./share/pkg/configs/database.go
+package configs
+
+import (
+        "os"
+
+        "github.com/joho/godotenv"
+)
+
+type ConfigDB struct {
+        DBHost     string
+        DBPort     string
+        DBUser     string
+        DBPassword string
+        DBName     string
+        DBSSLMode  string
+}
+
+func NewConfigDB(dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode, serverPort string) *ConfigDB {
+        return &ConfigDB{
+                DBHost:     dbHost,
+                DBPort:     dbPort,
+                DBUser:     dbUser,
+                DBPassword: dbPassword,
+                DBName:     dbName,
+                DBSSLMode:  dbSSLMode,
+        }
+}
+
+func NewEnvConfigDB(configPath string) *ConfigDB {
+        err := godotenv.Load(configPath)
+        if err != nil {
+                panic(err)
+        }
+
+        return &ConfigDB{
+                DBHost:     os.Getenv("DB_HOST"),
+                DBPort:     os.Getenv("DB_PORT"),
+                DBUser:     os.Getenv("DB_USER"),
+                DBPassword: os.Getenv("DB_PASSWORD"),
+                DBName:     os.Getenv("DB_NAME"),
+                DBSSLMode:  os.Getenv("DB_SSLMODE"),
+        }
+}
+Файл: ./share/pkg/configs/default.go
+package configs
+
+import "time"
+
+const (
+        DefaultGrpcPort          = "44044"
+        DefaultWalletServicePort = "40404"
+        DefaultPostgresPort      = "5432"
+        DefaultTokenExpire       = time.Hour * 24
+        DefaultCacheExpire       = time.Minute
+        DefaultENV               = "local"
+)
+Файл: ./share/pkg/configs/server.go
+package configs
+
+import (
+        "os"
+
+        "github.com/joho/godotenv"
+)
+
+type ServerConfig struct {
+        Env         string
+        TokenExpire string
+        CacheExpire string
+        Servers     map[string]Server
+}
+
+type Server struct {
+        ServerName string
+        Port       string
+        Host       string
+}
+
+func NewServerConfig(env, tokenExp, cacheExp string, servers ...Server) *ServerConfig {
+        serverMap := make(map[string]Server)
+        for _, server := range servers {
+                serverMap[server.ServerName] = server
+        }
+
+        return &ServerConfig{
+                Env:         env,
+                TokenExpire: tokenExp,
+                CacheExpire: cacheExp,
+                Servers:     serverMap,
+        }
+}
+
+func NewServerEnvConfig(configPath string) *ServerConfig {
+        err := godotenv.Load(configPath)
+        if err != nil {
+                panic(err)
+        }
+
+        serverMap := make(map[string]Server)
+
+        serverPrefixes := []string{"APP", "GRPC", "CACHE"}
+
+        for _, prefix := range serverPrefixes {
+                host := os.Getenv(prefix + "_HOST")
+                port := os.Getenv(prefix + "_PORT")
+
+                if host != "" && port != "" {
+                        serverMap[prefix] = Server{
+                                ServerName: prefix,
+                                Port:       port,
+                                Host:       host,
+                        }
+                }
+        }
+
+        env := os.Getenv("APP_ENV")
+        if env != "" {
+                env = DefaultENV
+        }
+
+        return &ServerConfig{
+                Env:         env,
+                TokenExpire: os.Getenv("TOKEN_EXPIRE"),
+                CacheExpire: os.Getenv("CACHE_EXPIRE"),
+                Servers:     serverMap,
+        }
+}
+Файл: ./share/gen/exchange/exchange_grpc.pb.go
+// Code generated by protoc-gen-go-grpc. DO NOT EDIT.
+// versions:
+// - protoc-gen-go-grpc v1.5.1
+// - protoc             v3.21.12
+// source: exchange/exchange.proto
+...
+
+Файл: ./share/gen/exchange/exchange.pb.go
+// Code generated by protoc-gen-go. DO NOT EDIT.
+// versions:
+//      protoc-gen-go v1.35.2
+//      protoc        v3.21.12
+// source: exchange/exchange.proto
+...

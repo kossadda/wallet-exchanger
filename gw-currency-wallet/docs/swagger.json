@@ -1,0 +1,408 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the API documentation for the Currency Wallet service.",
+        "title": "Currency Wallet API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8282",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This middleware validates the presence and correctness of the authorization token in the HTTP request header.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Middleware"
+                ],
+                "summary": "Verifies the user identity from the authorization token.",
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/v1/balance": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint returns the current balance of the user’s wallet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Fetches the balance of the authenticated user.",
+                "responses": {
+                    "200": {
+                        "description": "Current user balance",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/v1/exchange": {
+            "post": {
+                "description": "Exchange one currency for another and update the user's balance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exchange"
+                ],
+                "summary": "Exchange Currency",
+                "parameters": [
+                    {
+                        "description": "Currency exchange details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Exchange"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exchange result",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Exchange error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/exchange/rates": {
+            "get": {
+                "description": "Fetches current exchange rates from an external service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exchange"
+                ],
+                "summary": "Get Exchange Rates",
+                "responses": {
+                    "200": {
+                        "description": "Exchange rates",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve exchange rates",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "description": "Logs in the user and generates a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User Login",
+                "parameters": [
+                    {
+                        "description": "Login Credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LogUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JWT Token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid username or password",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/register": {
+            "post": {
+                "description": "Registers a new user in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User Registration",
+                "parameters": [
+                    {
+                        "description": "User Registration",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Username or email already exists",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/wallet/deposit": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint adds a specified amount of currency to the user's wallet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Deposits an amount into the authenticated user's wallet.",
+                "parameters": [
+                    {
+                        "description": "Amount to deposit",
+                        "name": "amount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Operation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New wallet balance after deposit",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/v1/wallet/withdraw": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint deducts a specified amount from the user's wallet.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Withdraws an amount from the authenticated user's wallet.",
+                "parameters": [
+                    {
+                        "description": "Amount to withdraw",
+                        "name": "amount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Operation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New wallet balance after withdrawal",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Exchange": {
+            "type": "object",
+            "required": [
+                "amount",
+                "from_currency",
+                "to_currency"
+            ],
+            "properties": {
+                "amount": {
+                    "description": "Amount is the amount of money to be exchanged.",
+                    "type": "number"
+                },
+                "from_currency": {
+                    "description": "FromCurrency is the currency that the user is exchanging from (e.g., USD).",
+                    "type": "string"
+                },
+                "to_currency": {
+                    "description": "ToCurrency is the currency that the user is exchanging to (e.g., EUR).",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "UserId is the identifier of the user initiating the exchange.",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.LogUser": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "description": "Password is the user's password for authentication.",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "Username is the user's login name.",
+                    "type": "string"
+                }
+            }
+        },
+        "model.Operation": {
+            "type": "object",
+            "required": [
+                "amount",
+                "currency"
+            ],
+            "properties": {
+                "amount": {
+                    "description": "Amount is the amount involved in the operation (e.g., the amount to be deposited or withdrawn).",
+                    "type": "number"
+                },
+                "currency": {
+                    "description": "Currency is the type of currency involved in the operation (e.g., USD, EUR).",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "UserId is the identifier of the user performing the operation.",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "description": "Email is the user's email address.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Id is the unique identifier of the user in the system.",
+                    "type": "integer"
+                },
+                "password": {
+                    "description": "Password is the user's encrypted password for secure authentication.",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "Username is the user's chosen name for logging in.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

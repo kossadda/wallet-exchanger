@@ -1,3 +1,4 @@
+// Package grpcclient provides gRPC client functionality for exchanging rates and performing wallet operations.
 package grpcclient
 
 import (
@@ -16,9 +17,10 @@ import (
 )
 
 const (
-	ratesCacheKey = "rates-cache"
+	ratesCacheKey = "rates-cache" // The cache key used to store and retrieve exchange rates.
 )
 
+// service represents the gRPC client that interacts with the exchange service, handles wallet operations, and caches results.
 type service struct {
 	wallet *wallet.Wallet
 	conn   *grpc.ClientConn
@@ -26,6 +28,7 @@ type service struct {
 	ch     cache.Cache
 }
 
+// newService creates and returns a new instance of service with the provided repository and configuration.
 func newService(repo *storage.Storage, cfg *configs.ServerConfig) *service {
 	grpcAddr, ok := cfg.Servers["GRPC"]
 	if !ok {
@@ -51,6 +54,7 @@ func newService(repo *storage.Storage, cfg *configs.ServerConfig) *service {
 	}
 }
 
+// GetExchangeRates retrieves exchange rates from the cache or fetches them from the gRPC server if not cached.
 func (s *service) GetExchangeRates(ctx context.Context) (*gen.ExchangeRatesResponse, error) {
 	var response *gen.ExchangeRatesResponse
 	if err := s.ch.Get(ctx, ratesCacheKey, &response); err != nil {
@@ -64,6 +68,7 @@ func (s *service) GetExchangeRates(ctx context.Context) (*gen.ExchangeRatesRespo
 	return response, nil
 }
 
+// ExchangeSum performs the currency exchange by withdrawing from the user's wallet in one currency and depositing in another.
 func (s *service) ExchangeSum(ctx context.Context, input *model.Exchange) ([]float64, error) {
 	r, err := s.GetExchangeRates(ctx)
 	if err != nil {
@@ -100,6 +105,7 @@ func (s *service) ExchangeSum(ctx context.Context, input *model.Exchange) ([]flo
 	return []float64{updateFrom, updateTo}, nil
 }
 
+// CloseGRPC closes the gRPC connection.
 func (s *service) CloseGRPC() error {
 	return s.conn.Close()
 }

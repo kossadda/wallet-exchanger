@@ -11,16 +11,26 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// storage struct holds the database connection.
 type storage struct {
 	db database.DataBase
 }
 
+// newStorage creates a new storage instance.
 func newStorage(db database.DataBase) *storage {
 	return &storage{
 		db: db,
 	}
 }
 
+// GetExchangeRates fetches exchange rates from the database and returns them.
+// @Summary Get exchange rates
+// @Description Get the current exchange rates for various currencies from the database.
+// @Tags Exchange
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500
 func (e *storage) GetExchangeRates(ctx context.Context) (*gen.ExchangeRatesResponse, error) {
 	var res gen.ExchangeRatesResponse
 

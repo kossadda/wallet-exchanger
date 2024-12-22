@@ -1,0 +1,275 @@
+basePath: /api/v1
+definitions:
+  model.Exchange:
+    properties:
+      amount:
+        description: Amount is the amount of money to be exchanged.
+        type: number
+      from_currency:
+        description: FromCurrency is the currency that the user is exchanging from
+          (e.g., USD).
+        type: string
+      to_currency:
+        description: ToCurrency is the currency that the user is exchanging to (e.g.,
+          EUR).
+        type: string
+      userId:
+        description: UserId is the identifier of the user initiating the exchange.
+        type: integer
+    required:
+    - amount
+    - from_currency
+    - to_currency
+    type: object
+  model.LogUser:
+    properties:
+      password:
+        description: Password is the user's password for authentication.
+        type: string
+      username:
+        description: Username is the user's login name.
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.Operation:
+    properties:
+      amount:
+        description: Amount is the amount involved in the operation (e.g., the amount
+          to be deposited or withdrawn).
+        type: number
+      currency:
+        description: Currency is the type of currency involved in the operation (e.g.,
+          USD, EUR).
+        type: string
+      userId:
+        description: UserId is the identifier of the user performing the operation.
+        type: integer
+    required:
+    - amount
+    - currency
+    type: object
+  model.User:
+    properties:
+      email:
+        description: Email is the user's email address.
+        type: string
+      id:
+        description: Id is the unique identifier of the user in the system.
+        type: integer
+      password:
+        description: Password is the user's encrypted password for secure authentication.
+        type: string
+      username:
+        description: Username is the user's chosen name for logging in.
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+host: localhost:8282
+info:
+  contact: {}
+  description: This is the API documentation for the Currency Wallet service.
+  title: Currency Wallet API
+  version: "1.0"
+paths:
+  /api/v1:
+    get:
+      consumes:
+      - application/json
+      description: This middleware validates the presence and correctness of the authorization
+        token in the HTTP request header.
+      produces:
+      - application/json
+      responses:
+        "401":
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      summary: Verifies the user identity from the authorization token.
+      tags:
+      - Middleware
+  /api/v1/balance:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint returns the current balance of the user’s wallet.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Current user balance
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      summary: Fetches the balance of the authenticated user.
+      tags:
+      - Wallet
+  /api/v1/exchange:
+    post:
+      consumes:
+      - application/json
+      description: Exchange one currency for another and update the user's balance
+      parameters:
+      - description: Currency exchange details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.Exchange'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exchange result
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Exchange error
+          schema:
+            type: string
+      summary: Exchange Currency
+      tags:
+      - Exchange
+  /api/v1/exchange/rates:
+    get:
+      consumes:
+      - application/json
+      description: Fetches current exchange rates from an external service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exchange rates
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to retrieve exchange rates
+          schema:
+            type: string
+      summary: Get Exchange Rates
+      tags:
+      - Exchange
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in the user and generates a JWT token
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.LogUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT Token
+          schema:
+            type: string
+        "401":
+          description: Invalid username or password
+          schema:
+            type: string
+      summary: User Login
+      tags:
+      - Auth
+  /api/v1/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user in the system
+      parameters:
+      - description: User Registration
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            type: string
+        "400":
+          description: Username or email already exists
+          schema:
+            type: string
+      summary: User Registration
+      tags:
+      - Auth
+  /api/v1/wallet/deposit:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint adds a specified amount of currency to the user's
+        wallet.
+      parameters:
+      - description: Amount to deposit
+        in: body
+        name: amount
+        required: true
+        schema:
+          $ref: '#/definitions/model.Operation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New wallet balance after deposit
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      summary: Deposits an amount into the authenticated user's wallet.
+      tags:
+      - Wallet
+  /api/v1/wallet/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint deducts a specified amount from the user's wallet.
+      parameters:
+      - description: Amount to withdraw
+        in: body
+        name: amount
+        required: true
+        schema:
+          $ref: '#/definitions/model.Operation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New wallet balance after withdrawal
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      summary: Withdraws an amount from the authenticated user's wallet.
+      tags:
+      - Wallet
+swagger: "2.0"

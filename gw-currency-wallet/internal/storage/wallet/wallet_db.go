@@ -1,3 +1,4 @@
+// Package wallet provides functionality related to user wallets, including balance retrieval, deposits, and withdrawals.
 package wallet
 
 import (
@@ -9,18 +10,23 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
+// SupportCurrency defines a set of supported currencies for deposit and withdrawal operations.
 var SupportCurrency = map[string]struct{}{"USD": {}, "RUB": {}, "EUR": {}}
 
+// storage represents the underlying storage layer for wallet operations, interacting with the database.
 type storage struct {
 	db database.DataBase
 }
 
+// newStorage creates and returns a new instance of storage.
 func newStorage(db database.DataBase) *storage {
 	return &storage{
 		db: db,
 	}
 }
 
+// GetBalance retrieves the user's balance in multiple currencies (USD, RUB, EUR).
+// It returns a model.Currency object containing the balances for each supported currency.
 func (w *storage) GetBalance(userId int) (*model.Currency, error) {
 	var balance model.Currency
 
@@ -39,6 +45,9 @@ func (w *storage) GetBalance(userId int) (*model.Currency, error) {
 	return &balance, nil
 }
 
+// Deposit adds a specified amount of currency to the user's wallet.
+// The currency type must be one of the supported currencies (USD, RUB, EUR).
+// It returns the updated balance for the specified currency.
 func (w *storage) Deposit(dep *model.Operation) (float64, error) {
 	if _, exist := SupportCurrency[dep.Currency]; !exist {
 		return 0, fmt.Errorf("currency %s not supported", dep.Currency)
@@ -62,6 +71,9 @@ func (w *storage) Deposit(dep *model.Operation) (float64, error) {
 	return updatedBalance, nil
 }
 
+// Withdraw removes a specified amount of currency from the user's wallet.
+// The currency type must be one of the supported currencies (USD, RUB, EUR).
+// It returns the updated balance after the withdrawal or an error if there are insufficient funds.
 func (w *storage) Withdraw(with *model.Operation) (float64, error) {
 	if _, exist := SupportCurrency[with.Currency]; !exist {
 		return 0, fmt.Errorf("currency %s not supported", with.Currency)

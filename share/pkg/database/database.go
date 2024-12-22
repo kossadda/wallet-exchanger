@@ -6,18 +6,20 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/database/postgres"
 )
 
+// Constants for table names.
 const (
 	UserTable     = "users"
 	WalletTable   = "wallets"
 	CurrencyTable = "currency"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=DataBase
+// DataBase defines the methods for interacting with a database.
 type DataBase interface {
 	Transaction(fn func(tx *sqlx.Tx) error) error
 	Close() error
 }
 
+// NewPostgres creates a new PostgreSQL database connection.
 func NewPostgres(cfg *configs.ConfigDB) (DataBase, error) {
 	return postgres.New(cfg)
 }

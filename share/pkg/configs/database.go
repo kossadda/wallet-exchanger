@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// ConfigDB holds the configuration settings for the PostgreSQL database connection.
 type ConfigDB struct {
 	DBHost     string
 	DBPort     string
@@ -15,6 +16,7 @@ type ConfigDB struct {
 	DBSSLMode  string
 }
 
+// NewConfigDB creates a new ConfigDB instance with the provided values.
 func NewConfigDB(dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode, serverPort string) *ConfigDB {
 	return &ConfigDB{
 		DBHost:     dbHost,
@@ -26,6 +28,7 @@ func NewConfigDB(dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode, serverPo
 	}
 }
 
+// NewEnvConfigDB loads configuration from a .env file and returns a ConfigDB instance.
 func NewEnvConfigDB(configPath string) *ConfigDB {
 	err := godotenv.Load(configPath)
 	if err != nil {

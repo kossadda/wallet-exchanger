@@ -1,3 +1,4 @@
+// Package app provides the main application logic for running and managing a gRPC server.
 package app
 
 import (
@@ -15,12 +16,16 @@ import (
 	"google.golang.org/grpc"
 )
 
+// GRPCApp represents the gRPC application, responsible for managing
+// the lifecycle of a gRPC server including startup, shutdown, and logging.
 type GRPCApp struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
 	port       string
 }
 
+// New initializes a new instance of GRPCApp with the provided dependencies.
+// It also registers the service delivery layer with the gRPC server.
 func New(log *slog.Logger, gRPCServer *grpc.Server, services *service.Service, port string) *GRPCApp {
 	delivery.Register(gRPCServer, services, log)
 
@@ -31,12 +36,16 @@ func New(log *slog.Logger, gRPCServer *grpc.Server, services *service.Service, p
 	}
 }
 
+// MustRun starts the gRPC server and panics if an error occurs.
+// It acts as a wrapper for the Run method.
 func (a *GRPCApp) MustRun() {
 	if err := a.Run(); err != nil {
 		panic(err)
 	}
 }
 
+// Run starts the gRPC server on the configured port. If the port is invalid,
+// it defaults to the application configuration's default gRPC port.
 func (a *GRPCApp) Run() error {
 	const op = "grpcapp.Run"
 
@@ -59,6 +68,8 @@ func (a *GRPCApp) Run() error {
 	return nil
 }
 
+// Stop gracefully stops the gRPC server in response to system signals
+// such as SIGINT, SIGTERM, or SIGHUP.
 func (a *GRPCApp) Stop() os.Signal {
 	const op = "grpcapp.Stop"
 

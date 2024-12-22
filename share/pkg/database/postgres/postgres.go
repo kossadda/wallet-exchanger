@@ -8,10 +8,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// PostgresDB represents a PostgreSQL database connection.
 type PostgresDB struct {
 	db *sqlx.DB
 }
 
+// New creates a new PostgreSQL database connection using the provided config.
 func New(cfg *configs.ConfigDB) (*PostgresDB, error) {
 	if cfg.DBPort == "" {
 		cfg.DBPort = configs.DefaultPostgresPort
@@ -30,6 +32,7 @@ func New(cfg *configs.ConfigDB) (*PostgresDB, error) {
 	return &PostgresDB{db: db}, nil
 }
 
+// Transaction starts a new transaction, executes the provided function, and commits or rolls back.
 func (p *PostgresDB) Transaction(fn func(tx *sqlx.Tx) error) error {
 	tx, err := p.db.Beginx()
 	if err != nil {
@@ -46,6 +49,7 @@ func (p *PostgresDB) Transaction(fn func(tx *sqlx.Tx) error) error {
 	return tx.Commit()
 }
 
+// Close closes the PostgreSQL database connection.
 func (p *PostgresDB) Close() error {
 	return p.db.Close()
 }

@@ -1,3 +1,5 @@
+// Package auth contains the logic for handling user authentication-related operations,
+// including user registration, login, and token management.
 package auth
 
 import (
@@ -11,12 +13,16 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
+// handler is a struct that handles the user authentication operations.
+// It contains references to the services layer, logger, and configuration.
 type handler struct {
 	services *service.Service
 	logger   *slog.Logger
 	config   *configs.ServerConfig
 }
 
+// newHandler creates and returns a new handler instance.
+// It is responsible for setting up the dependencies for handling user authentication.
 func newHandler(services *service.Service, logger *slog.Logger, config *configs.ServerConfig) *handler {
 	return &handler{
 		services: services,
@@ -25,6 +31,16 @@ func newHandler(services *service.Service, logger *slog.Logger, config *configs.
 	}
 }
 
+// Register handles the user registration process.
+// @Summary User Registration
+// @Description Registers a new user in the system
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body model.User true "User Registration"
+// @Success 201 {string} string "User registered successfully"
+// @Failure 400 {string} string "Username or email already exists"
+// @Router /api/v1/register [post]
 func (h *handler) Register(ctx *gin.Context) {
 	const op = "handler.Register"
 
@@ -53,6 +69,17 @@ func (h *handler) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, "User registered successfully")
 }
 
+// Login handles the user login process, validates the input,
+// and generates a JWT token for the authenticated user.
+// @Summary User Login
+// @Description Logs in the user and generates a JWT token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body model.LogUser true "Login Credentials"
+// @Success 200 {string} string "JWT Token"
+// @Failure 401 {string} string "Invalid username or password"
+// @Router /api/v1/login [post]
 func (h *handler) Login(ctx *gin.Context) {
 	const op = "handler.Login"
 

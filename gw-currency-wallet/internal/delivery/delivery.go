@@ -1,3 +1,5 @@
+// Package delivery handles the routing of HTTP requests and the integration of different application layers,
+// including authentication, wallet operations, and exchange services. It defines the HTTP handlers and routes.
 package delivery
 
 import (
@@ -12,6 +14,8 @@ import (
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
 )
 
+// Handler aggregates all the API handlers (Auth, Wallet, Exchange, Middleware)
+// and provides a unified entry point for route initialization and API handling.
 type Handler struct {
 	*auth.Auth
 	*wallet.Wallet
@@ -19,6 +23,7 @@ type Handler struct {
 	*middleware.Middleware
 }
 
+// New creates and returns a new instance of Handler with all the required handlers.
 func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Handler {
 	return &Handler{
 		Auth:       auth.New(services, logger, cfg),
@@ -28,6 +33,7 @@ func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConf
 	}
 }
 
+// InitRoutes initializes and returns the gin engine with routes for user registration, login, and other wallet operations.
 func (h *Handler) InitRoutes() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()

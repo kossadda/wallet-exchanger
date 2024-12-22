@@ -1,3 +1,5 @@
+// Package redis provides a Redis-based caching implementation for the application.
+// It includes functionality to store and retrieve data in a Redis cache.
 package redis
 
 import (
@@ -10,12 +12,15 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type Cache struct {
+// Redis represents a Redis cache client. It includes the Redis client and cache expiry time.
+type Redis struct {
 	client *redis.Client
 	expiry time.Duration
 }
 
-func New(ctx context.Context, cfg *configs.ServerConfig) (*Cache, error) {
+// New initializes a new Redis cache client using the provided server configuration.
+// It returns a Redis instance or an error if the connection to Redis fails.
+func New(ctx context.Context, cfg *configs.ServerConfig) (*Redis, error) {
 	cacheAddr, ok := cfg.Servers["CACHE"]
 	if !ok {
 		return nil, fmt.Errorf("can't find cache server config")
@@ -34,13 +39,15 @@ func New(ctx context.Context, cfg *configs.ServerConfig) (*Cache, error) {
 		cacheExp = configs.DefaultCacheExpire
 	}
 
-	return &Cache{
+	return &Redis{
 		client: db,
 		expiry: cacheExp,
 	}, nil
 }
 
-func (c *Cache) Set(ctx context.Context, key string, data any) error {
+// Set stores data in the Redis cache under the specified key. It serializes the data into JSON format
+// and sets the expiration time based on the Redis's expiry.
+func (c *Redis) Set(ctx context.Context, key string, data any) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("failed to serialize data: %w", err)
@@ -48,7 +55,9 @@ func (c *Cache) Set(ctx context.Context, key string, data any) error {
 	return c.client.Set(ctx, key, jsonData, c.expiry).Err()
 }
 
-func (c *Cache) Get(ctx context.Context, key string, v any) error {
+// Get retrieves data from the Redis cache using the specified key. It deserializes the cached data
+// from JSON format into the provided value.
+func (c *Redis) Get(ctx context.Context, key string, v any) error {
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return err

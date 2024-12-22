@@ -1,0 +1,50 @@
+basePath: /api/v1
+host: localhost:8181
+info:
+  contact: {}
+  description: This is the API documentation for the Wallet Exchanger service.
+  title: Wallet Exchanger API
+  version: "1.0"
+paths:
+  /api/v1/exchange-rate:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the exchange rate from one currency to another
+      parameters:
+      - description: Currency to convert from
+        in: query
+        name: from_currency
+        required: true
+        type: string
+      - description: Currency to convert to
+        in: query
+        name: to_currency
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Get exchange rate between two currencies
+      tags:
+      - Exchange
+  /api/v1/exchange-rates:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all exchange rates
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      summary: Get all available exchange rates
+      tags:
+      - Exchange
+swagger: "2.0"

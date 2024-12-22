@@ -1,0 +1,75 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the API documentation for the Wallet Exchanger service.",
+        "title": "Wallet Exchanger API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8181",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1/exchange-rate": {
+            "get": {
+                "description": "Retrieve the exchange rate from one currency to another",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exchange"
+                ],
+                "summary": "Get exchange rate between two currencies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Currency to convert from",
+                        "name": "from_currency",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Currency to convert to",
+                        "name": "to_currency",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/api/v1/exchange-rates": {
+            "get": {
+                "description": "Retrieve all exchange rates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exchange"
+                ],
+                "summary": "Get all available exchange rates",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    }
+}

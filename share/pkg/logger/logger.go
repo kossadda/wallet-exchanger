@@ -11,16 +11,19 @@ import (
 	"github.com/fatih/color"
 )
 
+// Constants for different environments.
 const (
 	envLocal = "local"
 	envDev   = "dev"
 	envProd  = "prod"
 )
 
+// HandlerOptions contains options for configuring the logger handler.
 type HandlerOptions struct {
 	SlogOpts *slog.HandlerOptions
 }
 
+// Handler is a custom logger handler that adds color formatting and structured logging.
 type Handler struct {
 	opts HandlerOptions
 	slog.Handler
@@ -28,6 +31,7 @@ type Handler struct {
 	attrs []slog.Attr
 }
 
+// NewHandler creates and returns a new Handler with the specified output writer.
 func (opts HandlerOptions) NewHandler(out io.Writer) *Handler {
 	h := &Handler{
 		Handler: slog.NewJSONHandler(out, opts.SlogOpts),
@@ -37,6 +41,7 @@ func (opts HandlerOptions) NewHandler(out io.Writer) *Handler {
 	return h
 }
 
+// Handle processes a log record, formats it with color, and outputs it to the writer.
 func (h *Handler) Handle(_ context.Context, r slog.Record) error {
 	level := r.Level.String() + ":"
 
@@ -86,6 +91,7 @@ func (h *Handler) Handle(_ context.Context, r slog.Record) error {
 	return nil
 }
 
+// WithAttrs returns a new handler with the specified attributes added.
 func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return &Handler{
 		Handler: h.Handler,
@@ -94,6 +100,7 @@ func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	}
 }
 
+// WithGroup returns a new handler with the specified group name.
 func (h *Handler) WithGroup(name string) slog.Handler {
 	return &Handler{
 		Handler: h.Handler.WithGroup(name),
@@ -101,6 +108,7 @@ func (h *Handler) WithGroup(name string) slog.Handler {
 	}
 }
 
+// SetupLogger initializes and returns a new logger with a default handler.
 func SetupLogger() *slog.Logger {
 	opts := HandlerOptions{
 		SlogOpts: &slog.HandlerOptions{
@@ -113,6 +121,7 @@ func SetupLogger() *slog.Logger {
 	return slog.New(handler)
 }
 
+// SetupByEnv sets up the logger based on the provided environment string.
 func SetupByEnv(env string) *slog.Logger {
 	switch env {
 	case envLocal:
@@ -126,6 +135,7 @@ func SetupByEnv(env string) *slog.Logger {
 	return SetupLogger()
 }
 
+// Err creates an error attribute for logging.
 func Err(err error) slog.Attr {
 	return slog.Attr{
 		Key:   "error",

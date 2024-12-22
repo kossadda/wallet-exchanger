@@ -1,3 +1,5 @@
+// Package delivery provides the gRPC server implementation for the Wallet Exchanger service.
+// This includes methods for querying exchange rates between currencies and for retrieving all exchange rates.
 package delivery
 
 import (
@@ -10,12 +12,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+// serverAPI implements the gRPC server interface for the exchange service.
 type serverAPI struct {
 	gen.UnimplementedExchangeServiceServer
 	services *service.Service
 	logger   *slog.Logger
 }
 
+// Register sets up the gRPC server to handle exchange-related requests.
 func Register(gRPC *grpc.Server, service *service.Service, log *slog.Logger) {
 	gen.RegisterExchangeServiceServer(gRPC, &serverAPI{
 		services: service,
@@ -23,6 +27,17 @@ func Register(gRPC *grpc.Server, service *service.Service, log *slog.Logger) {
 	})
 }
 
+// GetExchangeRateForCurrency fetches exchange rate for input currency from the database for output currency and returns them.
+// @Summary Get exchange rate between two currencies
+// @Description Retrieve the exchange rate from one currency to another
+// @Tags Exchange
+// @Accept json
+// @Produce json
+// @Param from_currency query string true "Currency to convert from"
+// @Param to_currency query string true "Currency to convert to"
+// @Success 200
+// @Failure 400
+// @Router /api/v1/exchange-rate [get]
 func (h *serverAPI) GetExchangeRateForCurrency(ctx context.Context, req *gen.CurrencyRequest) (*gen.ExchangeRateResponse, error) {
 	const op = "serverAPI.GetExchangeRateForCurrency"
 
@@ -43,6 +58,15 @@ func (h *serverAPI) GetExchangeRateForCurrency(ctx context.Context, req *gen.Cur
 	return rate, nil
 }
 
+// GetExchangeRates fetches exchange rates for from the database and returns them.
+// @Summary Get all available exchange rates
+// @Description Retrieve all exchange rates
+// @Tags Exchange
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500
+// @Router /api/v1/exchange-rates [get]
 func (h *serverAPI) GetExchangeRates(ctx context.Context, req *gen.Empty) (*gen.ExchangeRatesResponse, error) {
 	const op = "serverAPI.GetExchangeRates"
 
