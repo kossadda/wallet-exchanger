@@ -12,15 +12,15 @@ services:
     volumes:
       - ./db/migrations:/docker-entrypoint-initdb.d
 
-  exchange:
-    build: gw-exchanger/
+  exchanger:
+    build: exchanger/
     depends_on:
       - db
     ports:
       - "44044:44044"
       - "8181:8181"
     volumes:
-      - ./gw-exchanger/config:/config
+      - ./exchanger/config:/config
 
   cache:
     image: redis:7
@@ -30,16 +30,16 @@ services:
       - redis-data:/data
 
   currency-wallet:
-    build: gw-currency-wallet/
+    build: currency-wallet/
     depends_on:
       - db
       - cache
-      - exchange
+      - exchanger
     ports:
       - "8080:8080"
       - "8282:8282"
     volumes:
-      - ./gw-currency-wallet/config:/config
+      - ./currency-wallet/config:/config
 
 volumes:
   redis-data:
