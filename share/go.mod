@@ -4,6 +4,7 @@ go 1.23.3
 
 require (
 	github.com/fatih/color v1.18.0
+	github.com/golang/mock v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
