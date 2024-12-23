@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
+	"github.com/jmoiron/sqlx"
 	"github.com/kossadda/wallet-exchanger/exchanger/internal/app"
 	"github.com/kossadda/wallet-exchanger/exchanger/internal/service"
 	"github.com/kossadda/wallet-exchanger/exchanger/internal/storage"
@@ -24,10 +25,19 @@ const (
 )
 
 type Suite struct {
-	Ctrl     *gomock.Controller
-	Client   gen.ExchangeServiceClient
-	App      *app.GRPCApp
-	Services *service.Service
+	Ctrl   *gomock.Controller
+	Client gen.ExchangeServiceClient
+	App    *app.GRPCApp
+}
+
+type FakeDB struct{}
+
+func (f *FakeDB) Transaction(fn func(tx *sqlx.Tx) error) error {
+	return nil
+}
+
+func (f *FakeDB) Close() error {
+	return nil
 }
 
 func New(t *testing.T) (context.Context, *Suite) {
@@ -58,10 +68,9 @@ func New(t *testing.T) (context.Context, *Suite) {
 	ctrl, services := fakeService(t, ctx)
 
 	return ctx, &Suite{
-		Ctrl:     ctrl,
-		Client:   grpcClient(cfg),
-		App:      grpcApp(services, cfg),
-		Services: services,
+		Ctrl:   ctrl,
+		Client: grpcClient(cfg),
+		App:    grpcApp(services, cfg),
 	}
 }
 
@@ -101,6 +110,7 @@ func fakeService(t *testing.T, ctx context.Context) (*gomock.Controller, *servic
 	)
 
 	return ctrl, service.New(&storage.Storage{
+		DataBase: &FakeDB{},
 		Exchange: &exchange.Exchange{
 			MainAPI: mockRepo,
 		},

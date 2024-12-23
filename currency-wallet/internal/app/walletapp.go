@@ -12,35 +12,23 @@ import (
 
 	"github.com/kossadda/wallet-exchanger/currency-wallet/internal/delivery"
 	"github.com/kossadda/wallet-exchanger/currency-wallet/pkg/server"
-	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
-	"github.com/kossadda/wallet-exchanger/share/pkg/database"
 )
 
 // WalletApp represents the main application for the currency wallet service.
 // It contains all components of the application, including logging, database, HTTP server, and route handling.
 type WalletApp struct {
-	log    *slog.Logger          // Logger instance for logging application events
-	db     database.DataBase     // Database connection for interacting with the underlying database
-	hnd    *delivery.Handler     // Handler for HTTP routes and middleware
-	server *server.Server        // HTTP server for handling incoming requests
-	config *configs.ServerConfig // Configuration for the server, including host and port details
+	log    *slog.Logger      // Logger instance for logging application events
+	hnd    *delivery.Handler // Handler for HTTP routes and middleware
+	server *server.Server    // HTTP server for handling incoming requests
 }
 
 // New initializes a new WalletApp instance with the provided logger, database connection, route handler, and server config.
 // It sets up the application with default values if necessary (e.g., setting default host and port).
-func New(log *slog.Logger, db database.DataBase, hnd *delivery.Handler, servConf *configs.ServerConfig) *WalletApp {
-	appAddr, ok := servConf.Servers["APP"]
-	if !ok {
-		appAddr.Host = "localhost"
-		appAddr.Port = configs.DefaultWalletServicePort
-	}
-
+func New(log *slog.Logger, hnd *delivery.Handler, port string) *WalletApp {
 	return &WalletApp{
 		log:    log,
-		db:     db,
 		hnd:    hnd,
-		server: server.New(appAddr.Port, hnd.InitRoutes()),
-		config: servConf,
+		server: server.New(port, hnd.InitRoutes()),
 	}
 }
 
@@ -77,9 +65,8 @@ func (a *WalletApp) Stop() os.Signal {
 
 	a.log.With(slog.String("op", op)).Info("stopping WalletApp server")
 
-	_ = a.db.Close()
 	_ = a.server.Shutdown(context.Background())
-	_ = a.hnd.CloseGRPC()
+	a.hnd.Stop()
 
 	return sign
 }

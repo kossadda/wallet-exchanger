@@ -19,14 +19,10 @@ import (
 // GRPCApp represents the gRPC application, responsible for managing
 // the lifecycle of a gRPC server including startup, shutdown, and logging.
 type GRPCApp struct {
-	// gRPCServer is the instance of the gRPC server that handles incoming RPC requests.
-	gRPCServer *grpc.Server
-
-	// log is the structured logger used for recording application events and errors.
-	log *slog.Logger
-
-	// port specifies the port number on which the gRPC server listens for incoming connections.
-	port string
+	log        *slog.Logger     // structured logger used for recording application events and errors
+	port       string           // specifies the port number on which the gRPC server listens for incoming connections
+	gRPCServer *grpc.Server     // instance of the gRPC server that handles incoming RPC requests
+	services   *service.Service // provides access to the business logic layer, bundling authentication, wallet, and exchange services
 }
 
 // New initializes a new instance of GRPCApp with the provided dependencies.
@@ -35,9 +31,10 @@ func New(gRPCServer *grpc.Server, log *slog.Logger, services *service.Service, p
 	delivery.Register(gRPCServer, services, log)
 
 	return &GRPCApp{
-		gRPCServer: gRPCServer,
 		log:        log,
 		port:       port,
+		gRPCServer: gRPCServer,
+		services:   services,
 	}
 }
 
@@ -85,6 +82,7 @@ func (a *GRPCApp) Stop() os.Signal {
 	a.log.With(slog.String("op", op)).Info("stopping gRPC server")
 
 	a.gRPCServer.GracefulStop()
+	a.services.Stop()
 
 	return sign
 }

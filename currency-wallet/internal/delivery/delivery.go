@@ -17,6 +17,7 @@ import (
 // Handler aggregates all the API handlers (Auth, Wallet, Exchange, Middleware)
 // and provides a unified entry point for route initialization and API handling.
 type Handler struct {
+	*service.Service
 	*auth.Auth
 	*wallet.Wallet
 	*grpcclient.Exchange
@@ -26,6 +27,7 @@ type Handler struct {
 // New creates and returns a new instance of Handler with all the required handlers.
 func New(services *service.Service, logger *slog.Logger, cfg *configs.ServerConfig) *Handler {
 	return &Handler{
+		Service:    services,
 		Auth:       auth.New(services, logger, cfg),
 		Wallet:     wallet.New(services, logger, cfg),
 		Middleware: middleware.New(services, logger),
@@ -54,4 +56,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	}
 
 	return router
+}
+
+func (h *Handler) Stop() {
+	_ = h.Exchange.CloseGRPC()
+	h.Service.Stop()
 }

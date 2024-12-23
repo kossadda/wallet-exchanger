@@ -30,7 +30,13 @@ func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerCon
 	services := service.New(storage.New(db), servConf)
 	handler := delivery.New(services, log, servConf)
 
+	appAddr, ok := servConf.Servers["APP"]
+	if !ok {
+		appAddr.Host = "localhost"
+		appAddr.Port = configs.DefaultWalletServicePort
+	}
+
 	return &App{
-		Wallet: walletapp.New(log, db, handler, servConf),
+		Wallet: walletapp.New(log, handler, appAddr.Port),
 	}
 }
