@@ -11,7 +11,7 @@ import (
 
 // service handles low-level operations for currency exchange.
 type service struct {
-	strg *storage.Storage
+	strg *storage.Storage // Database layer
 }
 
 // newService creates a new instance of the exchange service.

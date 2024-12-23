@@ -13,7 +13,7 @@ import (
 
 // storage struct holds the database connection.
 type storage struct {
-	db database.DataBase
+	db database.DataBase // database with relations
 }
 
 // newStorage creates a new storage instance.

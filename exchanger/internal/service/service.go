@@ -8,7 +8,7 @@ import (
 
 // Service aggregates all services related to currency exchange.
 type Service struct {
-	*exchange.Exchange
+	*exchange.Exchange // embedded exchange service
 }
 
 // New creates a new instance of Service.

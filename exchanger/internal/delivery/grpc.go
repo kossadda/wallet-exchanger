@@ -14,9 +14,15 @@ import (
 
 // serverAPI implements the gRPC server interface for the exchange service.
 type serverAPI struct {
+	// UnimplementedExchangeServiceServer is embedded to ensure forward compatibility
+	// with future changes to the ExchangeService gRPC interface.
 	gen.UnimplementedExchangeServiceServer
+
+	// services provides access to the application's core business logic and functionality.
 	services *service.Service
-	logger   *slog.Logger
+
+	// logger is the structured logger used for tracking server activity and handling errors.
+	logger *slog.Logger
 }
 
 // Register sets up the gRPC server to handle exchange-related requests.

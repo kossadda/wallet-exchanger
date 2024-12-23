@@ -37,6 +37,6 @@ func New(log *slog.Logger, dbConf *configs.ConfigDB, servConf *configs.ServerCon
 	}
 
 	return &App{
-		GRPCSrv: grpcapp.New(log, gRPCServer, services, appAddr.Port),
+		GRPCSrv: grpcapp.New(gRPCServer, log, services, appAddr.Port),
 	}
 }

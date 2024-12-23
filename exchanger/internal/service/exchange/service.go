@@ -10,7 +10,10 @@ import (
 
 // MainAPI defines the interface for exchange rate operations.
 type MainAPI interface {
+	// GetExchageRates to get exchange rates for all currency
 	GetExchangeRates(context.Context) (*gen.ExchangeRatesResponse, error)
+
+	// GetExchangeRateForCurrency to get exchange rate for specific currency
 	GetExchangeRateForCurrency(context.Context, *gen.CurrencyRequest) (*gen.ExchangeRateResponse, error)
 }
 

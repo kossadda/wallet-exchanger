@@ -19,19 +19,24 @@ import (
 // GRPCApp represents the gRPC application, responsible for managing
 // the lifecycle of a gRPC server including startup, shutdown, and logging.
 type GRPCApp struct {
-	log        *slog.Logger
+	// gRPCServer is the instance of the gRPC server that handles incoming RPC requests.
 	gRPCServer *grpc.Server
-	port       string
+
+	// log is the structured logger used for recording application events and errors.
+	log *slog.Logger
+
+	// port specifies the port number on which the gRPC server listens for incoming connections.
+	port string
 }
 
 // New initializes a new instance of GRPCApp with the provided dependencies.
 // It also registers the service delivery layer with the gRPC server.
-func New(log *slog.Logger, gRPCServer *grpc.Server, services *service.Service, port string) *GRPCApp {
+func New(gRPCServer *grpc.Server, log *slog.Logger, services *service.Service, port string) *GRPCApp {
 	delivery.Register(gRPCServer, services, log)
 
 	return &GRPCApp{
-		log:        log,
 		gRPCServer: gRPCServer,
+		log:        log,
 		port:       port,
 	}
 }

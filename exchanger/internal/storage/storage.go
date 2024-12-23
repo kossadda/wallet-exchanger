@@ -9,7 +9,7 @@ import (
 
 // Storage struct provides access to the application's various data sources.
 type Storage struct {
-	*exchange.Exchange
+	*exchange.Exchange // embedded exchange storage
 }
 
 // New creates a new Storage instance with the provided database connection.
