@@ -1,438 +1,293 @@
-### Задача
-Разработать два сервиса:
-- кошелек-обменник с авторизацией (**gw-currency-wallet**)
-- сервис exchanger для получения курсов валют (**gw-exchanger**)
+# Wallet Service
 
-<div align="center">
-  <picture>
-    <img src="assets/img.png" alt="scheme dc-smart-light" style="width: 60%; margin-top: 5px; margin-bottom: 1px;">
-  </picture>
-</div>
+This repository provides a service for managing user wallets and currency exchange via gRPC. The service includes functionality for user registration, authentication, account deposit, withdrawal, and currency exchange. The API works using gRPC to exchange data and allows integration of currency exchange with external services.
 
-Сервисы должны общаться между собой по grpc
+## Contents
 
-### 1. Создайте протофайл
+1. [GW Currency Wallet Service](#wallet-service)
+2. [Installation and Setup](#installation-and-setup) \
+   2.1. [When cloning the repository](#when-cloning-the-repository) \
+   2.2. [Build with docker-compose](#build-with-docker-compose)
+3. [API](#api) \
+   3.1. [User Registration](#1-user-registration) \
+   3.2. [User Authorization](#2-user-authorization) \
+   3.3. [Get User Balance](#3-get-user-balance) \
+   3.4. [Deposit Funds](#4-deposit-funds) \
+   3.5. [Withdraw Funds](#5-withdraw-funds) \
+   3.6. [Get Exchange Rates](#6-get-exchange-rates) \
+   3.7. [Exchange Currency](#7-exchange-currency)
+4. [Logging](#logging)
+5. [Documentation](#documentation)
 
-Пример ```exchange.proto```:
+## Installation and Setup
 
-```protobuf
-syntax = "proto3";
+### When cloning the repository
 
-package exchange;
+1. Clone the repository:
 
-option go_package = "github.com/proto-exchange/exchange_grpc";
+   ```bash
+   git clone https://github.com/your-repo/your-project.git
+   cd your-project
+    ```
 
-// Определение сервиса
-service ExchangeService {
-    // Получение курсов обмена всех валют
-    rpc GetExchangeRates(Empty) returns (ExchangeRatesResponse);
-    
-    // Получение курса обмена для конкретной валюты
-    rpc GetExchangeRateForCurrency(CurrencyRequest) returns (ExchangeRateResponse);
-}
+2. For local development of each service, create configuration files similar to `config/local.env` for server parameters and `config/database.env` for database settings in each server, or use the provided example configurations.
 
-// Запрос для получения курса обмена для конкретной валюты
-message CurrencyRequest {
-    string from_currency = 1;
-    string to_currency = 2;
-}
+### Build with docker-compose
 
-// Ответ с курсом обмена для конкретной валюты
-message ExchangeRateResponse {
-    string from_currency = 1;
-    string to_currency = 2;
-    float rate = 3;
-}
+Navigate to the root of the repository and run the following command:
 
-// Ответ с курсами обмена всех валют
-message ExchangeRatesResponse {
-    map<string, float> rates = 1; // ключ: валюта, значение: курс
-}
-
-// Пустое сообщение
-message Empty {}
+```bash
+docker-compose up --build
 ```
 
-#### Структура директории
-```
-proto-exchange/
-├── exchange/
-│     └── exchange.proto
-└── go.mod
-```
+## API
 
-#### Генерация кода
-```shell
-go get google.golang.org/protobuf/cmd/protoc-gen-go
-go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
-cd ./exchange
-protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --experimental_allow_proto3_optional exchange.proto
-```
+### 1. User Registration
 
----
+- **Method:** `POST`
+- **URL:** `/api/v1/register`
+- **Request Body:**
 
-### 2. Создание сервиса exchanger для получения курсов валют (gw-exchanger)
-В качестве базы использовать PostgresQL (но описать интерфейс, чтобы можно было поменять на любую БД).
-Сами значения курса валют сервис должен получать из БД.
-Сервис по grpc должен обрабатывать запросы на получение курса валют.
-В качестве валют поддерживаются **USD, RUB, EUR**.
-
-Структура проекта
-```
-gw-exchanger/
-├── cmd/
-│     └── main.go
-├── pkg/
-│     ├── utils.go
-│     └── ...
-│         └── ...
-├── internal/
-│     ├── storages/
-│     │   ├── storage.go (интерфейс)
-│     │   ├── model.go
-│     │   └── postgres/
-│     │        ├── connector.go
-│     │        └── methods.go
-│     ├── config/
-│     │    ├── config.go
-│     │    └── defaults.go
-│     └── .../
-│         └── ...
-├── go.mod
-├── Dockerfile
-├── config.env
-├── Makefile
-└── README.md
-```
-
-Сервис должен иметь продвинутое логирование + читать пересеммные окружения из config.env (для локального запуска)
-```shell
-GOOS=linux GOARCH=amd64 go build -o main ./cmd
-./main -c config.env
-```
-
----
-
-### 3. Разработка микросервиса для управления кошельком и обмена валют (gw-currency-wallet)
-Микросервис должен поддерживать регистрацию и авторизацию пользователей, пополнение счета, вывод средств,
-получение курсов валют и обмен валют. В качестве базы данных используется PostgreSQL.
-Для взаимодействия с внешним сервисом курсов валют используется gRPC.
-
-Стек технологий: _Gin (или другой HTTP-фреймворк), JWT для авторизации, gRPC для получения курсов валют и обмена_
-
-API должен быть RESTful.
-
-▎1. Регистрация пользователя
-
-Метод: **POST**  
-URL: **/api/v1/register**  
-Тело запроса:
-```json
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-Ответ:
-• Успех: ```201 Created```
-```json
-{ 
-  "message": "User registered successfully"
-}
-```
-
-• Ошибка: ```400 Bad Request```
-```json
-{
-  "error": "Username or email already exists"
-}
-```
-
-▎Описание
-
-Регистрация нового пользователя. 
-Проверяется уникальность имени пользователя и адреса электронной почты.
-Пароль должен быть зашифрован перед сохранением в базе данных.
-
-
----
-▎2. Авторизация пользователя
-
-Метод: **POST**  
-URL: **/api/v1/login**  
-Тело запроса:
-```json
-{
-"username": "string",
-"password": "string"
-}
-```
-
-Ответ:
-
-• Успех: ```200 OK```
-```json
-{
-  "token": "JWT_TOKEN"
-}
-```
-
-• Ошибка: ```401 Unauthorized```
-```json
-{
-  "error": "Invalid username or password"
-}
-```
-
-▎Описание
-
-Авторизация пользователя.
-При успешной авторизации возвращается JWT-токен, который будет использоваться для аутентификации последующих запросов.
-
----
-
-▎ 3. Получение баланса пользователя
-
-Метод: **GET**  
-URL: **/api/v1/balance**  
-Заголовки:  
-_Authorization: Bearer JWT_TOKEN_
-
-Ответ:
-
-• Успех: ```200 OK```
-
-```json
-{
-  "balance":
-  {
-  "USD": "float",
-  "RUB": "float",
-  "EUR": "float"
-  }
-}
-```
-
----
-
-▎4. Пополнение счета
-
-Метод: **POST**  
-URL: **/api/v1/wallet/deposit**  
-Заголовки:  
-_Authorization: Bearer JWT_TOKEN_
-
-Тело запроса:
-```
-{
-  "amount": 100.00,
-  "currency": "USD" // (USD, RUB, EUR)
-}
-```
-
-Ответ:
-
-• Успех: ```200 OK```
-```json
-{
-  "message": "Account topped up successfully",
-  "new_balance": {
-    "USD": "float",
-    "RUB": "float",
-    "EUR": "float"
-  }
-}
-```
-
-• Ошибка: ```400 Bad Request```
-```json
-{
-"error": "Invalid amount or currency"
-}
-```
-
-▎Описание
-
-Позволяет пользователю пополнить свой счет. Проверяется корректность суммы и валюты.
-Обновляется баланс пользователя в базе данных.
-
----
-
-▎5. Вывод средств
-
-Метод: **POST**  
-URL: **/api/v1/wallet/withdraw**  
-Заголовки:  
-_Authorization: Bearer JWT_TOKEN_
-
-Тело запроса:
-```
-{
-    "amount": 50.00,
-    "currency": "USD" // USD, RUB, EUR)
-}
-```
-
-Ответ:
-
-• Успех: ```200 OK```
-```json
-{
-  "message": "Withdrawal successful",
-  "new_balance": {
-    "USD": "float",
-    "RUB": "float",
-    "EUR": "float"
-  }
-}
-```
-
-• Ошибка: 400 Bad Request
-```json
-{
-  "error": "Insufficient funds or invalid amount"
-}
-```
-
-▎Описание
-
-Позволяет пользователю вывести средства со своего счета.
-Проверяется наличие достаточного количества средств и корректность суммы.
-
----
-
-▎6. Получение курса валют
-
-Метод: **GET**  
-URL: **/api/v1/exchange/rates**  
-Заголовки:  
-_Authorization: Bearer JWT_TOKEN_
-
-Ответ:
-
-• Успех: ```200 OK```
-```json
-{
-    "rates": 
+    ```json
     {
-      "USD": "float",
-      "RUB": "float",
-      "EUR": "float"
+      "username": "string",
+      "password": "string",
+      "email": "string"
     }
-}
-```
+    ```
 
-• Ошибка: ```500 Internal Server Error```
-```json
-{
-  "error": "Failed to retrieve exchange rates"
-}
-```
+- **Response:**
+    - Success (201 Created):
 
-▎Описание
+    ```json
+    {
+      "message": "User registered successfully"
+    }
+    ```
 
-Получение актуальных курсов валют из внешнего gRPC-сервиса.
-Возвращает курсы всех поддерживаемых валют.
+    - Error (400 Bad Request):
 
----
+    ```json
+    {
+      "error": "Username or email already exists"
+    }
+    ```
 
-▎7. Обмен валют
+### 2. User authorization
 
-Метод: **POST**  
-URL: **/api/v1/exchange**  
-Заголовки:  
-_Authorization: Bearer JWT_TOKEN_
+- **Method:** `POST`
+- **URL:** `/api/v1/login`
+- **Request Body:**
 
-Тело запроса:
-```json
-{
-  "from_currency": "USD",
-  "to_currency": "EUR",
-  "amount": 100.00
-}
-```
+    ```json
+    {
+      "username": "string",
+      "password": "string"
+    }
+    ```
 
-Ответ:
+- **Response:**
+    - Success (200 OK):
 
-• Успех: ```200 OK```
-```json
-{
-  "message": "Exchange successful",
-  "exchanged_amount": 85.00,
-  "new_balance":
-  {
-  "USD": 0.00,
-  "EUR": 85.00
-  }
-}
-```
+    ```json
+    {
+      "token": "JWT_TOKEN"
+    }
+    ```
 
-• Ошибка: 400 Bad Request
-```json
-{
-  "error": "Insufficient funds or invalid currencies"
-}
-```
+    - Error (401 Unauthorized):
 
-▎Описание
+    ```json
+    {
+      "error": "Invalid username or password"
+    }
+    ```
 
-Курс валют осуществляется по данным сервиса exchange (если в течении небольшого времени был запрос от клиента курса валют (**/api/v1/exchange**) до обмена, то
-брать курс из кэша, если же запроса курса валют не было или он запрашивался слишком давно, то нужно осуществить gRPC-вызов к внешнему сервису, который предоставляет актуальные курсы валют)
-Проверяется наличие средств для обмена, и обновляется баланс пользователя.
+### 3. Get User Balance
 
-#### Структура проекта
+- **Method:** `GET`
+- **URL:** `/api/v1/balance`
+- **Headers:**
 
-```
-gw-currency-wallet/
-├── cmd/
-│     └── main.go
-├── pkg/
-│     ├── utils.go
-│     └── ...
-│         └── ...
-├── internal/
-│     ├── storages/
-│     │   ├── storage.go (интерфейс)
-│     │   ├── model.go
-│     │   └── postgres/
-│     │        ├── connector.go
-│     │        └── methods.go
-│     ├── config/
-│     │    ├── config.go
-│     │    └── defaults.go
-│     └── .../
-│         └── ...
-├── docs/
-│     ├── docs.go
-│     ├── swagger.json
-│     └── swagger.yaml
-├── tests/
-│     └── service_test.go
-├── go.mod
-├── Dockerfile
-├── config.env
-├── Makefile
-└── README.md
-```
+    ```text
+    Authorization: Bearer JWT_TOKEN
+    ```
 
-Также нужно учесть:
-1. Безопасность: Все запросы должны быть защищены JWT-токенами.
-2. Производительность: Время отклика сервиса не должно превышать 200 мс для большинства операций.
-3. Логирование: Все операции должны логироваться для дальнейшего анализа и отладки.
-4. Тестирование: Необходимо написать юнит-тесты для всех основных функций.
-5. Документация: Создать документацию API с использованием Swagger или аналогичного инструмента.
+- **Response:**
+    - Success (200 OK):
 
-Сервис должен иметь продвинутое логирование + читать пересеммные окружения из config.env (для локального запуска)
-```shell
-GOOS=linux GOARCH=amd64 go build -o main ./cmd
-./main -c config.env
-```
+    ```json
+    {
+      "balance": {
+        "USD": "float",
+        "RUB": "float",
+        "EUR": "float"
+      }
+    }
+    ```
 
----
+### 4. Deposit Funds
 
-### Притмечание
+- **Method:** `POST`
+- **URL:** `/api/v1/wallet/deposit`
+- **Headers:**
 
-Для проверки работоспособности достаточно запустить локально базу данных (и написать миграции) и два сервиса, и в **postman** или c помощью **curl** проверить как работает API.
-Также желатьльно написать README для каждого сервиса
+    ```text
+    Authorization: Bearer JWT_TOKEN
+    ```
+
+- **Request Body:**
+
+    ```json
+    {
+      "amount": 100.00,
+      "currency": "USD"
+    }
+    ```
+
+- **Response:**
+    - Success (200 OK):
+
+    ```json
+    {
+      "message": "Account topped up successfully",
+      "new_balance": {
+        "USD": "float",
+        "RUB": "float",
+        "EUR": "float"
+      }
+    }
+    ```
+
+    - Error (400 Bad Request):
+
+    ```json
+    {
+      "error": "Invalid amount or currency"
+    }
+    ```
+
+### 5. Withdraw Funds
+
+- **Method:** `POST`
+- **URL:** `/api/v1/wallet/withdraw`
+- **Headers:**
+
+    ```text
+    Authorization: Bearer JWT_TOKEN
+    ```
+
+- **Request Body:**
+
+    ```json
+    {
+      "amount": 50.00,
+      "currency": "USD"
+    }
+    ```
+
+- **Response:**
+    - Success (200 OK):
+
+    ```json
+    {
+      "message": "Withdrawal successful",
+      "new_balance": {
+        "USD": "float",
+        "RUB": "float",
+        "EUR": "float"
+      }
+    }
+    ```
+
+    - Error (400 Bad Request):
+
+    ```json
+    {
+      "error": "Insufficient funds or invalid amount"
+    }
+    ```
+
+### 6. Get Exchange Rates
+
+- **Method:** `GET`
+- **URL:** `/api/v1/exchange/rates`
+- **Headers:**
+
+    ```text
+    Authorization: Bearer JWT_TOKEN
+    ```
+
+- **Response:**
+    - Success (200 OK):
+
+    ```json
+    {
+      "rates": {
+        "USD": "float",
+        "RUB": "float",
+        "EUR": "float"
+      }
+    }
+    ```
+
+    - Error (500 Internal Server Error):
+
+    ```json
+    {
+      "error": "Failed to retrieve exchange rates"
+    }
+    ```
+
+### 7. Exchange Currency
+
+- **Method:** `POST`
+- **URL:** `/api/v1/exchange`
+- **Headers:**
+
+    ```text
+    Authorization: Bearer JWT_TOKEN
+    ```
+
+- **Request Body:**
+
+    ```json
+    {
+      "from_currency": "USD",
+      "to_currency": "EUR",
+      "amount": 100.00
+    }
+    ```
+
+- **Response:**
+    - Success (200 OK):
+
+    ```json
+    {
+      "message": "Exchange successful",
+      "exchanged_amount": 85.00,
+      "new_balance": {
+        "USD": 0.00,
+        "EUR": 85.00
+      }
+    }
+    ```
+
+    - Error (400 Bad Request):
+
+    ```json
+    {
+      "error": "Insufficient funds or invalid currencies"
+    }
+    ```
+
+## Logging
+
+The service uses logging to track errors and important operations. Logs can be viewed through standard mechanisms for console or file output, depending on the configuration.
+
+## Documentation
+
+When running, the `swagger` servers are deployed at the following addresses:
+- `http://localhost:8181/swagger/index.html` - for the `exchanger` server
+- `http://localhost:8282/swagger/index.html` - for the `currency-wallet` server
+
