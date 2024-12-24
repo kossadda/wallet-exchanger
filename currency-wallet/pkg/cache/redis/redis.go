@@ -20,21 +20,16 @@ type Redis struct {
 
 // New initializes a new Redis cache client using the provided server configuration.
 // It returns a Redis instance or an error if the connection to Redis fails.
-func New(ctx context.Context, cfg *configs.ServerConfig) (*Redis, error) {
-	cacheAddr, ok := cfg.Servers["CACHE"]
-	if !ok {
-		return nil, fmt.Errorf("can't find cache server config")
-	}
-
+func New(ctx context.Context, addr, cacheExpire string) (*Redis, error) {
 	db := redis.NewClient(&redis.Options{
-		Addr: cacheAddr.Host + ":" + cacheAddr.Port,
+		Addr: addr,
 	})
 
 	if err := db.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("failed to connect to redis server: %s", err.Error())
 	}
 
-	cacheExp, err := time.ParseDuration(cfg.CacheExpire)
+	cacheExp, err := time.ParseDuration(cacheExpire)
 	if err != nil {
 		cacheExp = configs.DefaultCacheExpire
 	}

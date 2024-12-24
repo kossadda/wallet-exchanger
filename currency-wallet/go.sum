@@ -85,10 +85,8 @@ github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa02
 github.com/klauspost/cpuid/v2 v2.2.7 h1:ZWSB3igEs+d0qvnxR/ZBzXVmxkgt8DdzP6m9pfuVLDM=
 github.com/klauspost/cpuid/v2 v2.2.7/go.mod h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZYpaMropDUws=
 github.com/knz/go-libedit v1.10.1/go.mod h1:MZTVkCWyz0oBc7JOWP3wNAzd002ZbM/5hgShxwh4x8M=
-github.com/kossadda/wallet-exchanger/exchanger v0.0.0-20241223162824-06f25c8bf791 h1:6Nx134/XQFom1mNJzKOIqSsBGtXejga/pGfpMpUeo3o=
-github.com/kossadda/wallet-exchanger/exchanger v0.0.0-20241223162824-06f25c8bf791/go.mod h1:Sv2gtOThW3Si5yi5+rdl6g9a0ixpKE2L+uraTXtOk4w=
-github.com/kossadda/wallet-exchanger/share v0.0.0-20241223113931-02be0c33a8d8 h1:vZRseXYzUMajqihqq0/WEX2pebMGHRbti4fPXPkTm8U=
-github.com/kossadda/wallet-exchanger/share v0.0.0-20241223113931-02be0c33a8d8/go.mod h1:Rtw4zu1nuRUlgdbJ1ukwq31JRUTNtc0gLrN+Y6mbvm8=
+github.com/kossadda/wallet-exchanger/share v0.0.0-20241223175325-e11ec8169d5a h1:o63vK+p2XpAZikNi2jLKokmYw4waMDq0YFv7IdQaBzc=
+github.com/kossadda/wallet-exchanger/share v0.0.0-20241223175325-e11ec8169d5a/go.mod h1:qq82mZF+keA+eaz629ippX3b9VpWX8dSXV/DDN9lTAo=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=

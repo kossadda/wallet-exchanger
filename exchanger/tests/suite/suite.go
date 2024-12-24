@@ -65,7 +65,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 		},
 	}
 
-	ctrl, services := fakeService(t, ctx)
+	ctrl, services := fakeService(t)
 
 	return ctx, &Suite{
 		Ctrl:   ctrl,
@@ -74,10 +74,10 @@ func New(t *testing.T) (context.Context, *Suite) {
 	}
 }
 
-func fakeService(t *testing.T, ctx context.Context) (*gomock.Controller, *service.Service) {
+func fakeService(t *testing.T) (*gomock.Controller, *service.Service) {
 	ctrl := gomock.NewController(t)
 
-	mockRepo := mockex.NewMockMainAPI(gomock.NewController(t))
+	mockRepo := mockex.NewMockMainAPI(ctrl)
 
 	response := &gen.ExchangeRatesResponse{
 		Rates: map[string]*gen.OneCurrencyRate{

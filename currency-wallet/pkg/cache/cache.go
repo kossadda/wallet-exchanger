@@ -4,6 +4,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/kossadda/wallet-exchanger/currency-wallet/pkg/cache/redis"
 	"github.com/kossadda/wallet-exchanger/share/pkg/configs"
@@ -21,5 +22,10 @@ type Cache interface {
 // NewRedis initializes a new Redis cache client and returns a Cache instance.
 // It takes the context and server configuration to configure the Redis client.
 func NewRedis(ctx context.Context, cfg *configs.ServerConfig) (Cache, error) {
-	return redis.New(ctx, cfg)
+	cacheAddr, ok := cfg.Servers["CACHE"]
+	if !ok {
+		return nil, fmt.Errorf("can't find cache server config")
+	}
+
+	return redis.New(ctx, cacheAddr.Host+":"+cacheAddr.Port, cfg.CacheExpire)
 }
